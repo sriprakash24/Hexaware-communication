@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 1 — Communication Foundation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- ===== FIREBASE SDK (compat build — no bundler needed) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+
+<style>
+:root{
+  --bg:#0a0f1c; --bg-alt:#0d1424; --bg-elev:#111a2e;
+  --card:rgba(255,255,255,0.045); --card-hover:rgba(255,255,255,0.07); --border:rgba(255,255,255,0.09);
+  --text:#e8edf7; --text-dim:#8b98b3; --text-faint:#5c6989;
+  --gold:#f2b84b; --gold-soft:rgba(242,184,75,0.15);
+  --teal:#5eead4; --teal-soft:rgba(94,234,212,0.15);
+  --coral:#f0806f; --coral-soft:rgba(240,128,111,0.15);
+  --violet:#a78bfa;
+  --radius:18px; --radius-sm:12px;
+  --shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+}
+[data-theme="light"]{
+  --bg:#f4f5f9; --bg-alt:#eceef4; --bg-elev:#ffffff;
+  --card:rgba(20,25,40,0.04); --card-hover:rgba(20,25,40,0.07); --border:rgba(20,25,40,0.1);
+  --text:#161b2c; --text-dim:#525d78; --text-faint:#8991a8;
+  --shadow:0 20px 60px -20px rgba(20,25,40,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Inter',sans-serif;
+  background:radial-gradient(ellipse 900px 500px at 15% -5%, rgba(242,184,75,0.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(94,234,212,0.08), transparent 55%), var(--bg);
+  color:var(--text); min-height:100vh; transition:background .4s ease,color .4s ease; -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+::selection{background:var(--gold);color:#0a0f1c;}
+button{font-family:inherit;cursor:pointer;}
+a{color:inherit;}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+section{padding:56px 0;}
+.section-head{margin-bottom:28px;}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.eyebrow::before{content:'';width:16px;height:1px;background:var(--gold);}
+h2.title{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;}
+.subtext{color:var(--text-dim);font-size:15.5px;margin-top:10px;line-height:1.6;max-width:640px;}
+
+/* banners */
+.sys-banner{
+  max-width:920px;margin:14px auto 0;padding:12px 16px;border-radius:12px;font-size:13px;
+  display:flex;align-items:center;gap:10px;border:1px solid;
+}
+.sys-banner.warn{background:rgba(240,128,111,0.1);border-color:rgba(240,128,111,.35);color:#f0a99e;}
+.sys-banner.info{background:rgba(94,234,212,0.08);border-color:rgba(94,234,212,.3);color:var(--teal);}
+.sys-banner button{margin-left:auto;background:none;border:1px solid currentColor;color:inherit;padding:4px 10px;border-radius:7px;font-size:12px;flex-shrink:0;}
+
+.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:color-mix(in srgb, var(--bg) 78%, transparent);border-bottom:1px solid var(--border);}
+.nav-inner{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;}
+.brand{display:flex;flex-direction:column;line-height:1.1;flex-shrink:0;}
+.brand .day{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--gold);letter-spacing:.05em;}
+.brand .sub{font-size:10.5px;color:var(--text-faint);letter-spacing:.08em;}
+.day-dots{display:flex;gap:5px;margin-left:2px;}
+.day-dots span{width:16px;height:4px;border-radius:2px;background:var(--border);}
+.day-dots span.on{background:var(--gold);}
+.prog-wrap{flex:1;display:flex;align-items:center;gap:10px;}
+.prog-track{flex:1;height:6px;border-radius:4px;background:var(--border);overflow:hidden;position:relative;}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--teal));width:0%;transition:width .5s ease;}
+.prog-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);min-width:34px;text-align:right;}
+.nav-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0;font-size:15px;}
+.nav-btn:hover{background:var(--card-hover);}
+.admin-btn,.switch-btn{font-size:12px;font-family:'JetBrains Mono',monospace;padding:0 12px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);white-space:nowrap;}
+.admin-btn:hover,.switch-btn:hover{color:var(--text);background:var(--card-hover);}
+
+.hero{padding:64px 0 40px;position:relative;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:var(--gold-soft);border:1px solid rgba(242,184,75,0.3);font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--gold);letter-spacing:.08em;margin-bottom:22px;text-transform:uppercase;}
+.hero h1{font-size:clamp(34px,7vw,58px);font-weight:900;letter-spacing:-0.03em;line-height:1.03;max-width:760px;}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero .tagline{margin-top:20px;font-size:18px;color:var(--text-dim);max-width:560px;line-height:1.5;font-style:italic;}
+.waveform{display:flex;align-items:center;gap:4px;height:64px;margin:34px 0 8px;}
+.waveform span{width:5px;border-radius:3px;background:linear-gradient(180deg,var(--gold),var(--teal));animation:wave 1.4s ease-in-out infinite;opacity:.85;}
+@keyframes wave{0%,100%{height:14%;}50%{height:100%;}}
+.hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap;}
+.btn-primary{background:linear-gradient(90deg,var(--gold),#e8a53b);color:#1a1206;font-weight:700;font-size:14.5px;padding:14px 26px;border-radius:12px;border:none;box-shadow:0 10px 30px -8px rgba(242,184,75,0.5);transition:transform .2s;}
+.btn-primary:hover{transform:translateY(-2px);}
+.btn-ghost{background:var(--card);border:1px solid var(--border);color:var(--text);font-weight:600;font-size:14.5px;padding:14px 22px;border-radius:12px;transition:.2s;}
+.btn-ghost:hover{background:var(--card-hover);}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(10px);}
+.grid{display:grid;gap:14px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+.mindset-card{padding:20px;display:flex;gap:12px;align-items:flex-start;transition:.25s;}
+.mindset-card:hover{background:var(--card-hover);transform:translateY(-2px);}
+.mindset-card .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);font-weight:700;flex-shrink:0;padding-top:2px;}
+.mindset-card p{font-size:14.5px;line-height:1.5;color:var(--text);}
+
+.flow{display:flex;flex-direction:column;gap:0;max-width:340px;margin:20px auto 0;}
+.flow-step{padding:16px 20px;border-radius:var(--radius-sm);text-align:center;font-weight:700;font-size:15px;border:1px solid var(--border);position:relative;}
+.flow-step .icon{font-size:20px;display:block;margin-bottom:4px;}
+.flow-arrow{display:flex;justify-content:center;padding:6px 0;color:var(--text-faint);font-size:18px;}
+.flow-step.s1{background:var(--teal-soft);border-color:rgba(94,234,212,.35);}
+.flow-step.s2{background:rgba(167,139,250,.13);border-color:rgba(167,139,250,.35);}
+.flow-step.s3{background:var(--gold-soft);border-color:rgba(242,184,75,.35);}
+.flow-step.s4{background:var(--coral-soft);border-color:rgba(240,128,111,.35);}
+
+.framework{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:22px;}
+.fw-chip{padding:10px 16px;border-radius:99px;background:var(--card);border:1px solid var(--border);font-weight:700;font-size:13.5px;font-family:'JetBrains Mono',monospace;}
+.fw-arrow{color:var(--text-faint);}
+
+.ex-card{border-radius:var(--radius);border:1px solid var(--border);background:var(--card);margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+.ex-card.done{border-color:rgba(94,234,212,0.4);}
+.ex-head{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none;}
+.ex-num{width:38px;height:38px;border-radius:10px;background:var(--bg-elev);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--text-dim);flex-shrink:0;}
+.ex-card.done .ex-num{background:var(--teal-soft);border-color:rgba(94,234,212,.4);color:var(--teal);}
+.ex-titles{flex:1;min-width:0;}
+.ex-titles h3{font-size:16px;font-weight:700;}
+.ex-titles .ex-type{font-size:12px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.ex-check{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;transition:.2s;}
+.ex-card.done .ex-check{background:var(--teal);border-color:var(--teal);color:#06251f;}
+.ex-chevron{color:var(--text-faint);transition:transform .25s;flex-shrink:0;}
+.ex-card.open .ex-chevron{transform:rotate(180deg);}
+.ex-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.ex-card.open .ex-body{max-height:3200px;}
+.ex-body-inner{padding:0 20px 22px;border-top:1px solid var(--border);padding-top:18px;}
+.ex-instr{color:var(--text-dim);font-size:14.5px;line-height:1.65;margin-bottom:16px;}
+.ex-instr ul{padding-left:18px;margin-top:6px;}
+.ex-instr li{margin-bottom:3px;}
+
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.pill{padding:8px 14px;border-radius:99px;background:var(--bg-elev);border:1px solid var(--border);font-size:13px;font-weight:600;}
+
+.timer-box{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--bg-elev);border:1px solid var(--border);margin-bottom:16px;}
+.timer-display{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;min-width:64px;}
+.timer-btn{padding:9px 16px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:600;font-size:13px;transition:.2s;}
+.timer-btn:hover{background:var(--card-hover);}
+.timer-btn.active{background:var(--gold);color:#1a1206;border-color:var(--gold);}
+.timer-label{font-size:12px;color:var(--text-faint);flex:1;}
+
+.rec-box{padding:16px;border-radius:var(--radius-sm);background:var(--bg-elev);border:1px solid var(--border);margin-bottom:16px;}
+.rec-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.rec-btn{width:50px;height:50px;border-radius:50%;border:2px solid var(--coral);background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;}
+.rec-btn .dot{width:18px;height:18px;border-radius:50%;background:var(--coral);}
+.rec-btn.recording{background:var(--coral);animation:pulse 1.2s infinite;}
+.rec-btn.recording .dot{border-radius:4px;background:#fff;width:14px;height:14px;}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(240,128,111,.5);}70%{box-shadow:0 0 0 14px rgba(240,128,111,0);}100%{box-shadow:0 0 0 0 rgba(240,128,111,0);}}
+.rec-status{font-size:13px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
+audio{width:100%;margin-top:12px;height:36px;}
+.rec-note{font-size:12px;color:var(--text-faint);margin-top:8px;}
+.save-note{font-size:12px;color:var(--teal);margin-top:8px;display:none;}
+.upload-note{font-size:12px;color:var(--gold);margin-top:6px;display:none;}
+
+textarea.notepad{width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:12px 14px;font-family:inherit;font-size:14px;resize:vertical;min-height:70px;margin-bottom:8px;}
+textarea.notepad:focus{outline:none;border-color:var(--gold);}
+
+.choice-row{display:flex;gap:10px;margin-bottom:14px;}
+.choice-btn{flex:1;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elev);font-weight:700;transition:.2s;}
+.choice-btn.agree.sel{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);}
+.choice-btn.disagree.sel{background:var(--coral-soft);border-color:var(--coral);color:var(--coral);}
+.statement-item{padding:14px 0;border-top:1px solid var(--border);}
+.statement-item:first-child{border-top:none;}
+.statement-text{font-weight:600;font-size:14.5px;margin-bottom:10px;}
+
+.ex-complete-row{display:flex;justify-content:flex-end;margin-top:6px;}
+.complete-btn{padding:10px 18px;border-radius:9px;border:1px solid rgba(94,234,212,.4);background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:13px;}
+.complete-btn.is-done{background:var(--teal);color:#06251f;}
+
+.rate-row{display:flex;align-items:center;gap:14px;padding:10px 0;}
+.rate-label{flex:0 0 130px;font-size:13.5px;font-weight:600;}
+.rate-row input[type=range]{flex:1;accent-color:var(--gold);}
+.rate-val{width:26px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold);}
+
+.badge-strip{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
+.badge{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;background:var(--card);border:1px solid var(--border);font-size:12.5px;font-weight:600;color:var(--text-faint);transition:.3s;}
+.badge.earned{background:var(--gold-soft);border-color:rgba(242,184,75,.4);color:var(--gold);}
+
+.sched-row{display:flex;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--border);}
+.sched-row:first-child{border-top:none;}
+.sched-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);width:64px;flex-shrink:0;}
+
+.final-msg{text-align:center;padding:50px 30px;border-radius:24px;background:linear-gradient(160deg, rgba(242,184,75,0.09), rgba(94,234,212,0.06));border:1px solid var(--border);}
+.final-msg p{font-size:17px;line-height:1.7;max-width:520px;margin:0 auto 14px;color:var(--text);}
+.final-msg p.emph{font-weight:800;font-size:20px;background:linear-gradient(90deg,var(--gold),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(4,7,14,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.modal-box{background:var(--bg-elev);border:1px solid var(--border);border-radius:22px;padding:36px 30px;max-width:400px;width:100%;box-shadow:var(--shadow);text-align:center;}
+.modal-box h2{font-size:22px;font-weight:800;margin-bottom:8px;}
+.modal-box p{color:var(--text-dim);font-size:14px;margin-bottom:22px;}
+.modal-box input{width:100%;padding:13px 16px;border-radius:11px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;margin-bottom:14px;font-family:inherit;}
+.modal-box input:focus{outline:none;border-color:var(--gold);}
+.modal-box .continue-chip{padding:10px 14px;border-radius:10px;background:var(--card);border:1px solid var(--border);margin-bottom:14px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;}
+
+.admin-panel{display:none;}
+.admin-panel.show{display:block;}
+.main-content.hide{display:none;}
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:640px){.stat-strip{grid-template-columns:repeat(2,1fr);}}
+.stat-box{padding:18px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);text-align:center;}
+.stat-box .num{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:800;color:var(--gold);}
+.stat-box .lbl{font-size:11.5px;color:var(--text-faint);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
+.student-row{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);margin-bottom:10px;cursor:pointer;transition:.2s;}
+.student-row:hover{background:var(--card-hover);}
+.student-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:800;color:#0a0f1c;flex-shrink:0;}
+.student-info{flex:1;min-width:0;}
+.student-info .name{font-weight:700;font-size:14.5px;}
+.student-info .meta{font-size:12px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
+.mini-bar{width:80px;height:5px;border-radius:3px;background:var(--border);overflow:hidden;flex-shrink:0;}
+.mini-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--teal));}
+.del-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-faint);flex-shrink:0;}
+.del-btn:hover{color:var(--coral);border-color:var(--coral);}
+
+.detail-overlay{position:fixed;inset:0;background:rgba(4,7,14,0.7);backdrop-filter:blur(4px);z-index:150;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+.detail-box{background:var(--bg-elev);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:560px;width:100%;margin-top:20px;}
+.detail-box h3{font-size:20px;font-weight:800;margin-bottom:4px;}
+.detail-box .close-x{float:right;background:var(--card);border:1px solid var(--border);width:32px;height:32px;border-radius:8px;color:var(--text);}
+.detail-item{padding:12px 0;border-top:1px solid var(--border);}
+.detail-item:first-of-type{border-top:none;}
+.detail-item h4{font-size:13px;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+.detail-item p{font-size:13.5px;color:var(--text-dim);line-height:1.5;}
+.rate-chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border-radius:99px;background:var(--card);font-size:12px;margin:3px 4px 0 0;font-family:'JetBrains Mono',monospace;}
+.empty-state{text-align:center;padding:50px 20px;color:var(--text-faint);}
+.empty-state .icon{font-size:34px;margin-bottom:10px;}
+footer{text-align:center;padding:40px 20px 60px;color:var(--text-faint);font-size:12.5px;}
+
+/* ---- Picture scenes ---- */
+.scene-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.scene-tab{padding:8px 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg-elev);font-size:12.5px;font-weight:600;color:var(--text-dim);}
+.scene-tab.active{background:var(--gold-soft);border-color:rgba(242,184,75,.4);color:var(--gold);}
+.scene-box{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);margin-bottom:16px;background:var(--bg-elev);}
+.scene-box svg{display:block;width:100%;height:auto;}
+.scene-questions{padding:4px 0 0;}
+.scene-questions .q{font-size:13.5px;font-weight:600;margin:10px 0 6px;color:var(--text);}
+
+/* ---- Story ---- */
+.story-box{padding:18px 20px;border-radius:var(--radius-sm);background:var(--bg-elev);border:1px solid var(--border);margin-bottom:16px;}
+.story-box p{font-size:14.5px;line-height:1.75;color:var(--text);margin-bottom:10px;}
+.story-box p:last-child{margin-bottom:0;}
+.mcq{margin-bottom:16px;}
+.mcq .qtext{font-weight:700;font-size:14px;margin-bottom:10px;}
+.mcq-opt{display:block;width:100%;text-align:left;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elev);margin-bottom:8px;font-size:13.5px;transition:.2s;color:var(--text);}
+.mcq-opt:hover{background:var(--card-hover);}
+.mcq-opt.correct{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);}
+.mcq-opt.wrong{background:var(--coral-soft);border-color:var(--coral);color:var(--coral);}
+.mcq-opt.disabled{pointer-events:none;}
+
+/* ---- Translation drill ---- */
+.tr-row{padding:14px 0;border-top:1px solid var(--border);}
+.tr-row:first-child{border-top:none;}
+.tr-tamil{font-size:16px;font-weight:700;margin-bottom:8px;}
+.tr-input{width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:13.5px;margin-bottom:6px;}
+.tr-actions{display:flex;gap:8px;align-items:center;}
+.tr-reveal-btn{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);font-size:12px;color:var(--text-dim);}
+.tr-answer{font-size:13px;color:var(--teal);display:none;padding:8px 10px;background:var(--teal-soft);border-radius:8px;margin-top:6px;}
+</style>
+</head>
+<body>
+
+<!-- ===== FIREBASE CONFIG — replace with your project's config ===== -->
+<script>
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+</script>
+
+<!-- ===== NAME GATE ===== -->
+<div class="modal-overlay" id="nameGate">
+  <div class="modal-box">
+    <h2>Welcome 👋</h2>
+    <p>Enter your name to begin Day 1. Your progress is saved automatically so your mentor can track it.</p>
+    <div id="continueChip"></div>
+    <input type="text" id="nameInput" placeholder="Your full name" autocomplete="off">
+    <button class="btn-primary" style="width:100%" onclick="startSession()">Start Day 1</button>
+  </div>
+</div>
+
+<div id="bannerWrap"></div>
+
+<!-- ===== NAV ===== -->
+<div class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <span class="day">DAY 01 <span style="color:var(--text-faint)">/ 04</span></span>
+      <div class="day-dots"><span class="on"></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <span class="prog-pct mono" id="progPct">0%</span>
+    </div>
+    <button class="nav-btn" id="themeToggle" title="Toggle theme">🌙</button>
+    <button class="switch-btn" id="switchBtn" title="Switch student">Switch</button>
+    <button class="admin-btn" id="adminToggle">Admin</button>
+  </div>
+</div>
+
+<div class="main-content" id="mainContent">
+<div class="wrap">
+  <div class="hero">
+    <span class="hero-eyebrow">Communication Foundation Program</span>
+    <h1>Speak with confidence<br>before speaking with <em>perfect English.</em></h1>
+    <p class="tagline">Today isn't about grammar. It's about finding your voice — listening well, thinking clearly, and speaking without freezing.</p>
+    <div class="waveform" id="heroWave"></div>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="document.getElementById('objectives').scrollIntoView({behavior:'smooth'})">Begin Day 1 →</button>
+      <button class="btn-ghost" onclick="document.getElementById('exercises').scrollIntoView({behavior:'smooth'})">Jump to Exercises</button>
+    </div>
+  </div>
+
+  <section id="objectives">
+    <div class="section-head">
+      <div class="eyebrow">Today's Motto</div>
+      <h2 class="title">Communication has three skills</h2>
+      <p class="subtext">Grammar and vocabulary can be improved later. Confidence and communication come first — and confidence is built through Listening, Thinking, and Speaking.</p>
+    </div>
+    <div class="grid grid-3" id="objList"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><div class="eyebrow">Mindset</div><h2 class="title">Keep this in mind all day</h2></div>
+    <div class="grid grid-2" id="mindsetGrid"></div>
+  </section>
+
+  <section>
+    <div class="grid grid-2" style="align-items:start;">
+      <div class="card" style="padding:26px;">
+        <div class="eyebrow" style="margin-bottom:16px;">Communication Flow</div>
+        <div class="flow">
+          <div class="flow-step s1"><span class="icon">👂</span>Listening</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step s2"><span class="icon">🧠</span>Thinking</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step s3"><span class="icon">🗣️</span>Speaking</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step s4"><span class="icon">✨</span>Confidence</div>
+        </div>
+      </div>
+      <div class="card" style="padding:26px;">
+        <div class="eyebrow" style="margin-bottom:6px;">Speaking Framework</div>
+        <p class="subtext" style="margin-bottom:10px;">Almost every GD topic can be spoken using this structure:</p>
+        <div class="framework">
+          <span class="fw-chip">Beginning</span><span class="fw-arrow">→</span>
+          <span class="fw-chip">Reason</span><span class="fw-arrow">→</span>
+          <span class="fw-chip">Example</span><span class="fw-arrow">→</span>
+          <span class="fw-chip">Opinion</span><span class="fw-arrow">→</span>
+          <span class="fw-chip">Conclusion</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="exercises">
+    <div class="section-head">
+      <div class="eyebrow">Practice</div>
+      <h2 class="title">12 Exercises</h2>
+      <p class="subtext">Work through each one. Voice exercises let you record and self-review — your mentor can review them too.</p>
+    </div>
+    <div id="exerciseList"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><div class="eyebrow">Session Plan</div><h2 class="title">Day 1 Schedule</h2></div>
+    <div class="card" style="padding:8px 22px;" id="scheduleList"></div>
+  </section>
+
+  <section>
+    <div class="section-head"><div class="eyebrow">Before Tomorrow</div><h2 class="title">Homework</h2></div>
+    <div class="card" style="padding:22px;"><ol style="padding-left:20px;color:var(--text-dim);font-size:14.5px;line-height:2;" id="hwList"></ol></div>
+  </section>
+
+  <section id="finalEval">
+    <div class="section-head">
+      <div class="eyebrow">Self Check</div>
+      <h2 class="title">Final Self-Evaluation</h2>
+      <p class="subtext">Rate yourself honestly from 1–10. This is saved to your profile.</p>
+    </div>
+    <div class="card" style="padding:22px 24px;" id="ratingBox"></div>
+    <div class="badge-strip" id="badgeStrip"></div>
+  </section>
+
+  <section>
+    <div class="final-msg">
+      <p class="emph">Today wasn't about learning English.<br>It was about finding your voice.</p>
+      <p>Every confident speaker once started exactly where you are now.</p>
+      <p>Don't aim to sound perfect. Aim to communicate clearly.</p>
+      <p>Confidence is built one conversation at a time.</p>
+    </div>
+  </section>
+</div>
+<footer>Day 1 of 4 · Communication Foundation Program</footer>
+</div>
+
+<div class="admin-panel" id="adminPanel">
+  <div class="wrap" style="padding-top:40px;">
+    <div class="section-head">
+      <div class="eyebrow">Mentor View</div>
+      <h2 class="title">Admin Dashboard</h2>
+      <p class="subtext">Every student who has started Day 1 appears here. Tap a student to see their scores, notes, and recordings.</p>
+    </div>
+    <div class="stat-strip" id="statStrip"></div>
+    <div id="studentListWrap"></div>
+  </div>
+  <footer>No password protects this view — anyone with the page link can open it.</footer>
+</div>
+
+<div id="detailOverlayWrap"></div>
+
+<script>
+/* ================= FIREBASE INIT ================= */
+let FIREBASE_READY = false;
+let db=null, storageRef=null;
+try{
+  if(FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY"){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    storageRef = firebase.storage();
+    FIREBASE_READY = true;
+  }
+}catch(e){ console.error('Firebase init failed', e); }
+
+function showBanner(msg, type){
+  const wrap = document.getElementById('bannerWrap');
+  const el = document.createElement('div');
+  el.className = 'sys-banner '+(type||'warn');
+  el.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()">Dismiss</button>`;
+  wrap.appendChild(el);
+}
+if(!FIREBASE_READY){
+  showBanner('⚠ Firebase is not configured yet — progress, recordings, and the admin dashboard will not save. Add your Firebase project config at the top of the file.', 'warn');
+}
+if(!window.isSecureContext){
+  showBanner('⚠ This page is not running on HTTPS — microphone recording will be blocked by the browser. Deploy it to your hosting platform (which serves HTTPS) to enable it.', 'warn');
+}
+
+/* ================= STATE & DATA ================= */
+let CURRENT_STUDENT = null;
+let PROFILE = null;
+
+const OBJECTIVES = ["Speak continuously for 2–3 minutes without freezing.","Organize thoughts in a logical order.","Listen actively and identify important points.","Express ideas using simple English.","Build confidence while speaking."];
+const MINDSET = ["Don't chase perfect English.","Chase clear communication.","Fluency comes before grammar.","Never translate word by word.","Think about the idea first.","Speak using simple English.","Mistakes are part of learning.","Confidence grows through practice."];
+const SCHEDULE = [["15 min","Voice Recording"],["15 min","Listening Practice"],["10 min","Keyword Hunt"],["15 min","Picture Speaking"],["15 min","Speed Thinking"],["10 min","Agree or Disagree"],["10 min","Mirror Conversation"]];
+const HOMEWORK = ["Speak in Tamil for 3 minutes.","Speak in English for 3 minutes.","Listen to both recordings.","Write down 10 words you couldn't express in English.","Learn those words.","Record the English version again."];
+const RATINGS = ["Confidence","Listening","Thinking","Speaking","Fluency","Voice Clarity","Eye Contact","Overall Performance"];
+
+/* Story for the interactive comprehension block */
+const STORY = {
+  title:"Meena's Bus Ride",
+  paras:[
+    "Meena woke up late on Monday morning. She had only ten minutes to catch her college bus.",
+    "She ran to the bus stop without having breakfast. The bus was already there, about to leave.",
+    "The driver saw her running and waited two extra minutes. Meena thanked him and sat near her friend Arun.",
+    "On the way, Arun shared his lunch box with her since she had no breakfast. Meena felt grateful and promised to wake up earlier from the next day."
+  ],
+  mcqs:[
+    {q:"Why did Meena run to the bus stop?", options:["She was late","She wanted exercise","She missed her friend"], correct:0},
+    {q:"Who waited for Meena?", options:["Her teacher","The bus driver","Her mother"], correct:1},
+    {q:"What did Arun do for Meena?", options:["Lent her money","Shared his lunch","Gave her a book"], correct:1},
+    {q:"What did Meena decide at the end?", options:["To stop going to college","To wake up earlier","To change her bus route"], correct:1}
+  ]
+};
+
+/* Tamil -> English translation drill */
+const TRANSLATE_ITEMS = [
+  {ta:"என் பெயர் ரவி.", en:"My name is Ravi."},
+  {ta:"நான் கல்லூரியில் படிக்கிறேன்.", en:"I am studying in college."},
+  {ta:"இது என் நண்பன்.", en:"This is my friend."},
+  {ta:"நாங்கள் இன்று கடைக்குச் சென்றோம்.", en:"We went to the shop today."},
+  {ta:"அவள் மிகவும் புத்திசாலி.", en:"She is very intelligent."},
+  {ta:"நாளை எனக்கு தேர்வு உள்ளது.", en:"I have an exam tomorrow."},
+  {ta:"இந்த புத்தகம் மிகவும் சுவாரஸ்யமானது.", en:"This book is very interesting."},
+  {ta:"நான் தினமும் காலையில் நடைப்பயிற்சி செய்வேன்.", en:"I walk every morning."}
+];
+
+/* Picture speaking scenes — original simple SVG illustrations */
+const SCENES = [
+  {id:'park', label:'Morning Park', bg:'#1a2740',
+   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="220" fill="#16233d"/>
+    <circle cx="340" cy="45" r="26" fill="#f2b84b"/>
+    <rect y="170" width="400" height="50" fill="#2b4a34"/>
+    <circle cx="70" cy="150" r="34" fill="#356b45"/><rect x="63" y="150" width="14" height="35" fill="#5c4326"/>
+    <circle cx="140" cy="140" r="40" fill="#3d7a4f"/><rect x="132" y="140" width="16" height="42" fill="#5c4326"/>
+    <circle cx="60" cy="190" r="10" fill="#e8c39e"/><rect x="52" y="198" width="16" height="20" fill="#5eead4"/>
+    <circle cx="110" cy="195" r="8" fill="#e8c39e"/><rect x="103" y="202" width="14" height="16" fill="#f0806f"/>
+    <ellipse cx="250" cy="205" rx="18" ry="8" fill="#274a36"/>
+    <circle cx="250" cy="185" r="9" fill="#e8c39e"/><rect x="242" y="192" width="16" height="16" fill="#a78bfa"/>
+   </svg>`,
+   qs:["What do you see in this picture?","What is happening here?","What time of day do you think it is, and why?","What might happen next?"]},
+  {id:'market', label:'Market Day', bg:'#241a2e',
+   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="220" fill="#211a30"/>
+    <rect y="150" width="400" height="70" fill="#3a2f4d"/>
+    <rect x="30" y="90" width="90" height="60" fill="#4a3a5c"/><polygon points="25,90 125,90 100,65 50,65" fill="#f0806f"/>
+    <rect x="150" y="100" width="90" height="50" fill="#4a3a5c"/><polygon points="145,100 245,100 220,75 170,75" fill="#5eead4"/>
+    <rect x="270" y="95" width="90" height="55" fill="#4a3a5c"/><polygon points="265,95 365,95 340,70 290,70" fill="#f2b84b"/>
+    <circle cx="60" cy="120" r="6" fill="#e07a4f"/><circle cx="75" cy="122" r="6" fill="#e07a4f"/><circle cx="90" cy="120" r="6" fill="#e07a4f"/>
+    <circle cx="180" cy="128" r="6" fill="#7fbf6a"/><circle cx="195" cy="130" r="6" fill="#7fbf6a"/>
+    <circle cx="150" cy="200" r="9" fill="#e8c39e"/><rect x="142" y="207" width="16" height="13" fill="#f0806f"/>
+    <circle cx="220" cy="205" r="9" fill="#e8c39e"/><rect x="212" y="212" width="16" height="8" fill="#5eead4"/>
+   </svg>`,
+   qs:["What kind of place is this?","What are the people doing?","What sounds might you hear here?","Have you visited a place like this? Describe it."]},
+  {id:'kitchen', label:'Family Kitchen', bg:'#1f2418',
+   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="220" fill="#232a1d"/>
+    <rect y="140" width="400" height="80" fill="#3a4530"/>
+    <rect x="40" y="90" width="130" height="50" fill="#4d5940" rx="6"/>
+    <circle cx="70" cy="115" r="10" fill="#f2b84b"/><circle cx="110" cy="115" r="10" fill="#f0806f"/>
+    <rect x="230" y="70" width="90" height="70" fill="#4d5940" rx="6"/>
+    <rect x="245" y="85" width="60" height="40" fill="#16233d" rx="4"/>
+    <circle cx="150" cy="195" r="9" fill="#e8c39e"/><rect x="142" y="202" width="16" height="16" fill="#a78bfa"/>
+    <circle cx="200" cy="198" r="8" fill="#e8c39e"/><rect x="193" y="205" width="14" height="14" fill="#5eead4"/>
+   </svg>`,
+   qs:["What is this family doing?","What do you think they are cooking?","Why is family time at home important?","Describe a similar moment from your own home."]},
+  {id:'busstop', label:'Rainy Bus Stop', bg:'#141c2b',
+   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="220" fill="#111a2b"/>
+    <line x1="20" y1="10" x2="5" y2="40" stroke="#5eead4" stroke-width="2" opacity=".5"/>
+    <line x1="80" y1="20" x2="65" y2="55" stroke="#5eead4" stroke-width="2" opacity=".5"/>
+    <line x1="150" y1="5" x2="135" y2="38" stroke="#5eead4" stroke-width="2" opacity=".5"/>
+    <line x1="300" y1="15" x2="285" y2="48" stroke="#5eead4" stroke-width="2" opacity=".5"/>
+    <line x1="350" y1="25" x2="335" y2="58" stroke="#5eead4" stroke-width="2" opacity=".5"/>
+    <rect y="170" width="400" height="50" fill="#1c2740"/>
+    <rect x="120" y="100" width="160" height="70" fill="#26314d"/><rect x="130" y="60" width="140" height="10" fill="#f2b84b"/>
+    <circle cx="160" cy="195" r="9" fill="#e8c39e"/><rect x="152" y="202" width="16" height="16" fill="#f0806f"/>
+    <circle cx="200" cy="195" r="9" fill="#e8c39e"/><rect x="192" y="202" width="16" height="16" fill="#a78bfa"/>
+    <circle cx="240" cy="196" r="8" fill="#e8c39e"/><rect x="233" y="203" width="14" height="14" fill="#5eead4"/>
+   </svg>`,
+   qs:["What is the weather like in this picture?","Who is waiting, and what for?","How do you think they feel right now?","What would you do while waiting here?"]}
+];
+
+const EXERCISES = [
+  {id:'ex1', num:1, title:'Voice Baseline', type:'record', theme:'speak', duration:180,
+    instr:`Measure your current communication level. Pick one topic below, then <b>speak only in Tamil</b>, record yourself, and speak continuously for 2–3 minutes. Don't stop. Don't restart. Don't worry about mistakes.`,
+    pills:['My Family','My College','My Hometown','My Best Friend','Why I Chose CSE'],
+    reflect:['Did I stop?','Did I hesitate?','Did I repeat words?','Was I confident?','Did I complete 2–3 minutes?'],
+    scoreLabel:'Score yourself out of 10'},
+
+  {id:'ex2', num:2, title:'Story Structure', type:'story', theme:'think',
+    instr:`Read this short beginner-level story once. Then answer the questions below, and finally retell it out loud using <b>Beginning → Reason → Example → Opinion → Conclusion</b>.`},
+
+  {id:'ex3', num:3, title:'Tamil → English Thinking', type:'translate', theme:'think',
+    instr:`First, see the difference between translating word-by-word and thinking directly in simple English. Then try translating these 8 Tamil sentences into English yourself — type your answer, then reveal the suggested translation to check.`,
+    wrong:['Tamil','Translate every word','Speak'], right:['Idea','Simple English','Speak']},
+
+  {id:'ex4', num:4, title:'Short Sentence Practice', type:'notes', theme:'speak',
+    instr:`Speak using short sentences instead of one long complicated sentence. Example: "I am from Pudukkottai. I completed my schooling there. Now I am studying Computer Science." Write 3 short sentences about yourself below.`},
+
+  {id:'ex5', num:5, title:'Active Listening Challenge', type:'listening', theme:'listen',
+    instr:`Use a 30–60 second beginner-level audio from one of these free platforms, then answer the questions below.`,
+    links:[['BBC Learning English','https://www.bbc.co.uk/learningenglish'],['VOA Learning English','https://learningenglish.voanews.com'],['ELLLO','https://elllo.org']],
+    reflect:['What was the topic?','Who was speaking?','What was the main idea?','Mention three important words.','Explain it in Tamil.','Explain it in simple English.']},
+
+  {id:'ex6', num:6, title:'Keyword Hunt', type:'notes', theme:'listen',
+    instr:`Play another short audio. Write five keywords, three important details, any names, and any places you heard. This develops active listening.`},
+
+  {id:'ex7', num:7, title:'One Minute Retelling', type:'record', theme:'speak', duration:60,
+    instr:`Re-read the story from Exercise 2, then close it and retell it — first in Tamil, then in simple English. Focus on the idea, not memorizing sentences.`},
+
+  {id:'ex8', num:8, title:'Picture Speaking', type:'picture', theme:'speak', duration:60, prep:60,
+    instr:`Choose a scene below, observe it for one minute, then record yourself speaking for one minute using the guiding questions.`},
+
+  {id:'ex9', num:9, title:'Agree or Disagree', type:'choice', theme:'think',
+    instr:`Choose Agree or Disagree for each statement and give at least two reasons.`,
+    statements:['AI will replace many jobs.','Online classes are better than classroom learning.','Mobile phones should be banned in classrooms.']},
+
+  {id:'ex10', num:10, title:'Speed Thinking', type:'record', theme:'speak', duration:60, prep:10,
+    instr:`A random word is shown. You get 10 seconds to think, then speak continuously for 1 minute — no preparation.`,
+    pills:['Rain','Laptop','Village','Teacher','Hospital']},
+
+  {id:'ex11', num:11, title:'Mirror Conversation', type:'record', theme:'speak', duration:120,
+    instr:`Stand in front of a mirror and answer naturally — no memorized answers.`,
+    reflect:['Tell me about yourself.','Why did you choose CSE?','What are your strengths?']},
+
+  {id:'ex12', num:12, title:'News in 60 Seconds', type:'record', theme:'speak', duration:60,
+    instr:`Read or listen to one short news article, then explain: What happened? Why is it important? What is your opinion?`}
+];
+
+const THEME_COLOR = {speak:'var(--gold)', listen:'var(--teal)', think:'var(--violet)'};
+
+/* ================= FIRESTORE HELPERS ================= */
+async function saveProfile(){
+  if(!CURRENT_STUDENT || !FIREBASE_READY) return;
+  try{ await db.collection('students').doc(CURRENT_STUDENT).set(PROFILE); }
+  catch(e){ console.error('save failed', e); showBanner('⚠ Could not save your progress — check your connection.', 'warn'); }
+}
+async function loadProfile(name){
+  if(FIREBASE_READY){
+    try{
+      const doc = await db.collection('students').doc(name).get();
+      if(doc.exists) return doc.data();
+    }catch(e){ console.error('load failed', e); }
+  }
+  return {name, startedAt:new Date().toISOString(), checklist:{}, notes:{}, ratings:{}, choices:{}, audio:{}};
+}
+
+/* ================= SESSION / NAME GATE ================= */
+function checkExistingSession(){
+  const last = localStorage.getItem('day1_current_student');
+  if(last){
+    document.getElementById('continueChip').innerHTML = `
+      <div class="continue-chip"><span>Continue as <b>${last}</b>?</span>
+      <button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="continueSession('${last.replace(/'/g,"\\'")}')">Continue</button></div>`;
+  }
+}
+async function continueSession(name){
+  CURRENT_STUDENT = name;
+  PROFILE = await loadProfile(name);
+  document.getElementById('nameGate').style.display = 'none';
+  renderAll();
+}
+async function startSession(){
+  const val = document.getElementById('nameInput').value.trim();
+  if(!val){ document.getElementById('nameInput').focus(); return; }
+  CURRENT_STUDENT = val;
+  localStorage.setItem('day1_current_student', val);
+  PROFILE = await loadProfile(val);
+  document.getElementById('nameGate').style.display = 'none';
+  await saveProfile();
+  renderAll();
+}
+document.getElementById('nameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') startSession(); });
+document.getElementById('switchBtn').addEventListener('click', ()=>{
+  document.getElementById('nameGate').style.display = 'flex';
+  checkExistingSession();
+});
+checkExistingSession();
+
+/* ================= RENDER STATIC LISTS ================= */
+function renderStaticContent(){
+  document.getElementById('objList').innerHTML = OBJECTIVES.map((o,i)=>`<div class="mindset-card"><span class="num">0${i+1}</span><p>${o}</p></div>`).join('');
+  document.getElementById('mindsetGrid').innerHTML = MINDSET.map((m,i)=>`<div class="mindset-card"><span class="num">0${i+1}</span><p>${m}</p></div>`).join('');
+  document.getElementById('scheduleList').innerHTML = SCHEDULE.map(s=>`<div class="sched-row"><span class="sched-time mono">${s[0]}</span><span>${s[1]}</span></div>`).join('');
+  document.getElementById('hwList').innerHTML = HOMEWORK.map(h=>`<li>${h}</li>`).join('');
+  document.getElementById('ratingBox').innerHTML = RATINGS.map(r=>`
+    <div class="rate-row"><span class="rate-label">${r}</span>
+      <input type="range" min="1" max="10" value="5" data-rating="${r}" oninput="onRating(this)">
+      <span class="rate-val mono" id="rateval-${r.replace(/\s/g,'')}">5</span>
+    </div>`).join('');
+  const wave = document.getElementById('heroWave');
+  wave.innerHTML='';
+  for(let i=0;i<28;i++){
+    const s = document.createElement('span');
+    s.style.animationDelay = (Math.random()*1.2)+'s';
+    s.style.height = (20+Math.random()*40)+'%';
+    wave.appendChild(s);
+  }
+}
+function onRating(el){
+  const key = el.dataset.rating;
+  document.getElementById('rateval-'+key.replace(/\s/g,'')).textContent = el.value;
+  PROFILE.ratings[key] = parseInt(el.value);
+  saveProfile(); updateBadges(); updateProgress();
+}
+
+/* ================= EXERCISE RENDERING ================= */
+function renderExercises(){
+  const wrap = document.getElementById('exerciseList');
+  wrap.innerHTML = EXERCISES.map(ex => exerciseCardHTML(ex)).join('');
+  EXERCISES.forEach(ex=>{
+    const card = document.getElementById('card-'+ex.id);
+    if(PROFILE.checklist[ex.id]){ card.classList.add('done'); const b=document.getElementById('completebtn-'+ex.id); if(b){b.classList.add('is-done'); b.textContent='✓ Completed';} }
+    const notesEl = document.getElementById('notes-'+ex.id);
+    if(notesEl && PROFILE.notes[ex.id]) notesEl.value = PROFILE.notes[ex.id];
+    const scoreEl = document.getElementById('score-'+ex.id);
+    if(scoreEl && PROFILE.notes[ex.id+'_score']) scoreEl.value = PROFILE.notes[ex.id+'_score'];
+    if(ex.type==='choice' && PROFILE.choices[ex.id]){
+      Object.keys(PROFILE.choices[ex.id]).forEach(idx=>{
+        const val = PROFILE.choices[ex.id][idx];
+        const btn = document.querySelector(`#card-${ex.id} [data-stmt="${idx}"][data-choice="${val}"]`);
+        if(btn) btn.classList.add('sel');
+        const reason = document.getElementById(`reason-${ex.id}-${idx}`);
+        if(reason && PROFILE.notes[ex.id+'_reason'+idx]) reason.value = PROFILE.notes[ex.id+'_reason'+idx];
+      });
+    }
+    if((ex.type==='record'||ex.type==='picture') && PROFILE.audio[ex.id]) showSavedAudio(ex.id, PROFILE.audio[ex.id]);
+  });
+}
+
+function recordWidgetHTML(id, prep, dur){
+  return `<div class="timer-box">
+      <span class="timer-display mono" id="tmr-${id}">${fmtTime(prep?prep:dur)}</span>
+      <span class="timer-label" id="tmrlabel-${id}">${prep?'Prep time':'Speaking time'}</span>
+      <button class="timer-btn" id="tmrbtn-${id}" onclick="toggleTimer('${id}', ${prep||0}, ${dur})">Start</button>
+    </div>
+    <div class="rec-box">
+      <div class="rec-controls">
+        <button class="rec-btn" id="recbtn-${id}" onclick="toggleRecording('${id}')"><span class="dot"></span></button>
+        <span class="rec-status mono" id="recstatus-${id}">Tap to record</span>
+      </div>
+      <div id="recplayer-${id}"></div>
+      <div class="upload-note" id="uploadnote-${id}">Uploading…</div>
+      <div class="save-note" id="savenote-${id}">✓ Saved — your mentor can play this back.</div>
+      <div class="rec-note">Recording uses your microphone (requires HTTPS) and saves to your profile.</div>
+    </div>`;
+}
+
+function exerciseCardHTML(ex){
+  const color = THEME_COLOR[ex.theme] || 'var(--gold)';
+  let inner = `<p class="ex-instr">${ex.instr}</p>`;
+
+  if(ex.pills) inner += `<div class="pill-row">${ex.pills.map(p=>`<span class="pill">${p}</span>`).join('')}</div>`;
+
+  if(ex.type==='story'){
+    inner += `<div class="story-box">${STORY.paras.map(p=>`<p>${p}</p>`).join('')}</div>`;
+    inner += `<div id="mcqwrap-${ex.id}">` + STORY.mcqs.map((m,mi)=>`
+      <div class="mcq">
+        <div class="qtext">${mi+1}. ${m.q}</div>
+        ${m.options.map((o,oi)=>`<button class="mcq-opt" id="mcq-${ex.id}-${mi}-${oi}" onclick="answerMCQ('${ex.id}',${mi},${oi},${m.correct})">${o}</button>`).join('')}
+      </div>`).join('') + `</div>`;
+  }
+
+  if(ex.type==='translate'){
+    inner += `<div class="grid grid-2" style="margin-bottom:18px;">
+      <div class="card" style="padding:16px;border-color:rgba(240,128,111,.3)"><div class="eyebrow" style="color:var(--coral)">✕ Wrong</div>
+        ${ex.wrong.map(w=>`<div style="padding:6px 0;font-size:14px;">${w}</div>`).join('<div style="color:var(--text-faint)">↓</div>')}</div>
+      <div class="card" style="padding:16px;border-color:rgba(94,234,212,.3)"><div class="eyebrow" style="color:var(--teal)">✓ Correct</div>
+        ${ex.right.map(w=>`<div style="padding:6px 0;font-size:14px;">${w}</div>`).join('<div style="color:var(--text-faint)">↓</div>')}</div>
+    </div>`;
+    inner += TRANSLATE_ITEMS.map((t,ti)=>`
+      <div class="tr-row">
+        <div class="tr-tamil">${t.ta}</div>
+        <input class="tr-input" placeholder="Type your English translation..." id="trinput-${ex.id}-${ti}" onblur="saveTranslation('${ex.id}',${ti},this.value)">
+        <div class="tr-actions"><button class="tr-reveal-btn" onclick="revealTranslation('${ex.id}',${ti})">Show suggested translation</button></div>
+        <div class="tr-answer" id="transwer-${ex.id}-${ti}">${t.en}</div>
+      </div>`).join('');
+  }
+
+  if(ex.type==='listening' && ex.links){
+    inner += `<div class="pill-row">${ex.links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;">🔗 ${l[0]}</a>`).join('')}</div>`;
+  }
+
+  if(ex.type==='record'){
+    inner += recordWidgetHTML(ex.id, ex.prep||0, ex.duration||60);
+  }
+
+  if(ex.type==='picture'){
+    inner += `<div class="scene-tabs">${SCENES.map((s,si)=>`<button class="scene-tab ${si===0?'active':''}" id="scenetab-${ex.id}-${si}" onclick="pickScene('${ex.id}',${si})">${s.label}</button>`).join('')}</div>
+    <div class="scene-box" id="scenebox-${ex.id}">${SCENES[0].svg}</div>
+    <div class="scene-questions" id="scenequestions-${ex.id}">${SCENES[0].qs.map(q=>`<div class="q">• ${q}</div>`).join('')}</div>
+    ${recordWidgetHTML(ex.id, ex.prep||0, ex.duration||60)}`;
+  }
+
+  if(ex.reflect){
+    inner += `<div class="card" style="padding:14px 16px;margin-bottom:16px;"><div class="eyebrow" style="margin-bottom:8px;">Reflect</div>
+      <ul style="padding-left:18px;font-size:13.5px;color:var(--text-dim);line-height:1.9;">${ex.reflect.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
+  }
+
+  if(ex.type==='choice'){
+    inner += ex.statements.map((s,idx)=>`
+      <div class="statement-item"><div class="statement-text">${s}</div>
+        <div class="choice-row">
+          <button class="choice-btn agree" data-stmt="${idx}" data-choice="agree" onclick="selectChoice('${ex.id}',${idx},'agree',this)">Agree</button>
+          <button class="choice-btn disagree" data-stmt="${idx}" data-choice="disagree" onclick="selectChoice('${ex.id}',${idx},'disagree',this)">Disagree</button>
+        </div>
+        <textarea class="notepad" id="reason-${ex.id}-${idx}" placeholder="Your two reasons..." onblur="saveReason('${ex.id}',${idx},this.value)"></textarea>
+      </div>`).join('');
+  }
+
+  if(ex.type==='notes'){
+    inner += `<textarea class="notepad" id="notes-${ex.id}" placeholder="Write here..." onblur="saveNotes('${ex.id}',this.value)"></textarea>`;
+  }
+
+  if(ex.scoreLabel){
+    inner += `<div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+      <span style="font-size:13px;color:var(--text-dim);">${ex.scoreLabel}</span>
+      <input type="number" min="0" max="10" id="score-${ex.id}" style="width:56px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 8px;font-family:'JetBrains Mono',monospace;" onblur="saveScore('${ex.id}',this.value)">
+    </div>`;
+  }
+
+  inner += `<div class="ex-complete-row"><button class="complete-btn" id="completebtn-${ex.id}" onclick="toggleComplete('${ex.id}')">Mark Complete</button></div>`;
+
+  return `<div class="ex-card" id="card-${ex.id}">
+    <div class="ex-head" onclick="toggleCard('${ex.id}')">
+      <div class="ex-num mono" style="color:${color}">${String(ex.num).padStart(2,'0')}</div>
+      <div class="ex-titles"><h3>${ex.title}</h3><div class="ex-type">${ex.type.toUpperCase()}${ex.duration?' · '+ex.duration+'s':''}</div></div>
+      <div class="ex-check">✓</div><div class="ex-chevron">▾</div>
+    </div>
+    <div class="ex-body"><div class="ex-body-inner">${inner}</div></div>
+  </div>`;
+}
+
+function fmtTime(s){ const m=Math.floor(s/60), sec=s%60; return `${m}:${String(sec).padStart(2,'0')}`; }
+function toggleCard(id){ document.getElementById('card-'+id).classList.toggle('open'); }
+function toggleComplete(id){
+  PROFILE.checklist[id] = !PROFILE.checklist[id];
+  document.getElementById('card-'+id).classList.toggle('done', PROFILE.checklist[id]);
+  document.getElementById('completebtn-'+id).classList.toggle('is-done', PROFILE.checklist[id]);
+  document.getElementById('completebtn-'+id).textContent = PROFILE.checklist[id] ? '✓ Completed' : 'Mark Complete';
+  saveProfile(); updateProgress(); updateBadges();
+}
+function saveNotes(id, val){ PROFILE.notes[id]=val; saveProfile(); }
+function saveScore(id, val){ PROFILE.notes[id+'_score']=val; saveProfile(); }
+function saveReason(id, idx, val){ PROFILE.notes[id+'_reason'+idx]=val; saveProfile(); }
+function saveTranslation(id, idx, val){ PROFILE.notes[id+'_tr'+idx]=val; saveProfile(); }
+function revealTranslation(id, idx){ document.getElementById(`transwer-${id}-${idx}`).style.display='block'; }
+function answerMCQ(id, qi, oi, correctIdx){
+  for(let i=0;i<5;i++){
+    const el = document.getElementById(`mcq-${id}-${qi}-${i}`);
+    if(!el) break;
+    el.classList.add('disabled');
+    if(i===correctIdx) el.classList.add('correct');
+  }
+  if(oi!==correctIdx) document.getElementById(`mcq-${id}-${qi}-${oi}`).classList.add('wrong');
+  PROFILE.notes[id+'_mcq'+qi] = (oi===correctIdx) ? 'correct' : 'wrong';
+  saveProfile();
+}
+function pickScene(id, si){
+  document.querySelectorAll(`[id^="scenetab-${id}-"]`).forEach(t=>t.classList.remove('active'));
+  document.getElementById(`scenetab-${id}-${si}`).classList.add('active');
+  document.getElementById(`scenebox-${id}`).innerHTML = SCENES[si].svg;
+  document.getElementById(`scenequestions-${id}`).innerHTML = SCENES[si].qs.map(q=>`<div class="q">• ${q}</div>`).join('');
+  PROFILE.notes[id+'_scene'] = SCENES[si].label;
+  saveProfile();
+}
+function selectChoice(id, idx, choice, btn){
+  if(!PROFILE.choices[id]) PROFILE.choices[id]={};
+  PROFILE.choices[id][idx]=choice;
+  document.querySelectorAll(`#card-${id} [data-stmt="${idx}"]`).forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel'); saveProfile();
+}
+
+/* ================= TIMERS ================= */
+const timerState = {};
+function toggleTimer(id, prep, dur){
+  if(timerState[id] && timerState[id].running){
+    clearInterval(timerState[id].interval); timerState[id].running=false;
+    document.getElementById('tmrbtn-'+id).textContent='Start'; document.getElementById('tmrbtn-'+id).classList.remove('active');
+    return;
+  }
+  let phase = prep>0 ? 'prep' : 'speak';
+  let remaining = prep>0 ? prep : dur;
+  document.getElementById('tmrlabel-'+id).textContent = phase==='prep' ? 'Prep time' : 'Speaking time';
+  document.getElementById('tmrbtn-'+id).textContent='Pause'; document.getElementById('tmrbtn-'+id).classList.add('active');
+  timerState[id] = {running:true};
+  timerState[id].interval = setInterval(()=>{
+    remaining--;
+    document.getElementById('tmr-'+id).textContent = fmtTime(Math.max(remaining,0));
+    if(remaining<=0){
+      if(phase==='prep'){ phase='speak'; remaining=dur; document.getElementById('tmrlabel-'+id).textContent='Speaking time'; }
+      else{
+        clearInterval(timerState[id].interval); timerState[id].running=false;
+        document.getElementById('tmrbtn-'+id).textContent='Start'; document.getElementById('tmrbtn-'+id).classList.remove('active');
+        document.getElementById('tmrlabel-'+id).textContent='Time up!';
+      }
+    }
+  },1000);
+}
+
+/* ================= AUDIO RECORDING ================= */
+const recState = {};
+async function toggleRecording(id){
+  const btn = document.getElementById('recbtn-'+id);
+  const status = document.getElementById('recstatus-'+id);
+  if(recState[id] && recState[id].recording){ recState[id].mediaRecorder.stop(); return; }
+
+  if(!window.isSecureContext){ status.textContent = 'Blocked: page must be served over HTTPS.'; return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ status.textContent = 'Microphone not supported in this browser.'; return; }
+
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+    const mr = new MediaRecorder(stream, {mimeType, audioBitsPerSecond:24000});
+    const chunks = [];
+    mr.ondataavailable = e=>{ if(e.data.size>0) chunks.push(e.data); };
+    mr.onstop = async ()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      btn.classList.remove('recording');
+      const blob = new Blob(chunks, {type:'audio/webm'});
+      const localUrl = URL.createObjectURL(blob);
+      document.getElementById('recplayer-'+id).innerHTML = `<audio controls src="${localUrl}"></audio>`;
+      status.textContent = 'Recorded';
+      recState[id].recording=false;
+
+      if(FIREBASE_READY && CURRENT_STUDENT){
+        document.getElementById('uploadnote-'+id).style.display='block';
+        try{
+          const path = `recordings/${CURRENT_STUDENT}/${id}_${Date.now()}.webm`;
+          const ref = storageRef.ref().child(path);
+          await ref.put(blob);
+          const url = await ref.getDownloadURL();
+          PROFILE.audio[id] = {url, savedAt:new Date().toISOString(), sizeKB:Math.round(blob.size/1024)};
+          await saveProfile();
+          document.getElementById('uploadnote-'+id).style.display='none';
+          document.getElementById('savenote-'+id).style.display='block';
+        }catch(e){
+          console.error('upload failed', e);
+          document.getElementById('uploadnote-'+id).textContent = 'Upload failed — recording only saved on this device.';
+        }
+      }
+    };
+    mr.start();
+    recState[id] = {mediaRecorder:mr, recording:true};
+    btn.classList.add('recording');
+    status.textContent = 'Recording... tap to stop';
+  }catch(err){
+    status.textContent = 'Microphone permission denied.';
+  }
+}
+function showSavedAudio(id, audioObj){
+  document.getElementById('recplayer-'+id).innerHTML = `<audio controls src="${audioObj.url}"></audio>`;
+  document.getElementById('savenote-'+id).style.display='block';
+}
+
+/* ================= PROGRESS + BADGES ================= */
+function updateProgress(){
+  const total = EXERCISES.length + 1;
+  let done = EXERCISES.filter(ex=>PROFILE.checklist[ex.id]).length;
+  const ratedCount = Object.keys(PROFILE.ratings||{}).length;
+  if(ratedCount >= RATINGS.length) done += 1;
+  const pct = Math.round((done/total)*100);
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progPct').textContent = pct+'%';
+}
+function updateBadges(){
+  const done = EXERCISES.filter(ex=>PROFILE.checklist[ex.id]).length;
+  const badges = [
+    {label:'First Recording', earned: Object.keys(PROFILE.audio||{}).length>0, icon:'🎙️'},
+    {label:'Halfway There', earned: done>=6, icon:'⚡'},
+    {label:'All Exercises Done', earned: done>=EXERCISES.length, icon:'🏆'},
+    {label:'Self-Evaluated', earned: Object.keys(PROFILE.ratings||{}).length>=RATINGS.length, icon:'📊'},
+  ];
+  document.getElementById('badgeStrip').innerHTML = badges.map(b=>`<div class="badge ${b.earned?'earned':''}">${b.icon} ${b.label}</div>`).join('');
+}
+
+/* ================= ADMIN DASHBOARD ================= */
+async function openAdmin(){
+  document.getElementById('mainContent').classList.add('hide');
+  document.getElementById('adminPanel').classList.add('show');
+  document.getElementById('adminToggle').textContent = 'Close Admin';
+  await loadAdminData();
+}
+function closeAdmin(){
+  document.getElementById('mainContent').classList.remove('hide');
+  document.getElementById('adminPanel').classList.remove('show');
+  document.getElementById('adminToggle').textContent = 'Admin';
+}
+document.getElementById('adminToggle').addEventListener('click', ()=>{
+  const isOpen = document.getElementById('adminPanel').classList.contains('show');
+  isOpen ? closeAdmin() : openAdmin();
+});
+
+async function loadAdminData(){
+  const wrap = document.getElementById('studentListWrap');
+  if(!FIREBASE_READY){
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">⚠</div>Firebase is not configured — the admin dashboard needs it to read student data.</div>`;
+    document.getElementById('statStrip').innerHTML='';
+    return;
+  }
+  wrap.innerHTML = `<div class="empty-state"><div class="icon">⏳</div>Loading students...</div>`;
+  let profiles = [];
+  try{
+    const snap = await db.collection('students').get();
+    snap.forEach(doc=>profiles.push(doc.data()));
+  }catch(e){ console.error(e); }
+
+  if(profiles.length===0){
+    wrap.innerHTML = `<div class="empty-state"><div class="icon">🗂️</div>No students have started Day 1 yet.</div>`;
+    document.getElementById('statStrip').innerHTML=''; return;
+  }
+  const totalEx = EXERCISES.length;
+  const avgCompletion = Math.round(profiles.reduce((a,p)=>a + Object.values(p.checklist||{}).filter(Boolean).length,0) / (profiles.length*totalEx) * 100) || 0;
+  const fullyDone = profiles.filter(p=>Object.values(p.checklist||{}).filter(Boolean).length>=totalEx).length;
+  const recordings = profiles.reduce((a,p)=>a+Object.keys(p.audio||{}).length,0);
+
+  document.getElementById('statStrip').innerHTML = `
+    <div class="stat-box"><div class="num mono">${profiles.length}</div><div class="lbl">Students</div></div>
+    <div class="stat-box"><div class="num mono">${avgCompletion}%</div><div class="lbl">Avg Completion</div></div>
+    <div class="stat-box"><div class="num mono">${fullyDone}</div><div class="lbl">Finished Day 1</div></div>
+    <div class="stat-box"><div class="num mono">${recordings}</div><div class="lbl">Recordings</div></div>`;
+
+  wrap.innerHTML = profiles.map((p,i)=>{
+    const doneCount = Object.values(p.checklist||{}).filter(Boolean).length;
+    const pct = Math.round((doneCount/totalEx)*100);
+    const initial = (p.name||'?').trim()[0]?.toUpperCase()||'?';
+    return `<div class="student-row" onclick="openDetail(${i})">
+      <div class="student-avatar">${initial}</div>
+      <div class="student-info"><div class="name">${p.name}</div><div class="meta">${doneCount}/${totalEx} exercises · started ${new Date(p.startedAt).toLocaleDateString()}</div></div>
+      <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
+      <button class="del-btn" onclick="event.stopPropagation();deleteStudent('${(p.name||'').replace(/'/g,"\\'")}')">✕</button>
+    </div>`;
+  }).join('');
+  window._adminProfiles = profiles;
+}
+async function deleteStudent(name){
+  if(!confirm(`Remove ${name}'s record? This cannot be undone.`)) return;
+  try{ await db.collection('students').doc(name).delete(); }catch(e){}
+  await loadAdminData();
+}
+function openDetail(idx){
+  const p = window._adminProfiles[idx];
+  const doneCount = Object.values(p.checklist||{}).filter(Boolean).length;
+  let html = `<div class="detail-overlay" onclick="if(event.target===this) closeDetail()"><div class="detail-box">
+      <button class="close-x" onclick="closeDetail()">✕</button>
+      <h3>${p.name}</h3>
+      <p style="color:var(--text-faint);font-size:12.5px;margin-bottom:14px;">Started ${new Date(p.startedAt).toLocaleString()} · ${doneCount}/${EXERCISES.length} completed</p>`;
+  EXERCISES.forEach(ex=>{
+    const notes = p.notes ? p.notes[ex.id] : null;
+    const score = p.notes ? p.notes[ex.id+'_score'] : null;
+    const audio = p.audio ? p.audio[ex.id] : null;
+    const doneTag = p.checklist && p.checklist[ex.id] ? '✓' : '—';
+    const hasChoice = ex.type==='choice' && p.choices && p.choices[ex.id];
+    if(!notes && !score && !audio && !hasChoice){ html += `<div class="detail-item"><h4>${doneTag} ${ex.num}. ${ex.title}</h4></div>`; return; }
+    html += `<div class="detail-item"><h4>${doneTag} ${ex.num}. ${ex.title}</h4>`;
+    if(score) html += `<p>Self-score: <b>${score}/10</b></p>`;
+    if(notes) html += `<p>${notes}</p>`;
+    if(hasChoice){
+      Object.keys(p.choices[ex.id]).forEach(i=>{
+        const reason = p.notes ? p.notes[ex.id+'_reason'+i] : '';
+        html += `<p><b>${ex.statements[i]}</b> — ${p.choices[ex.id][i]}${reason?': '+reason:''}</p>`;
+      });
+    }
+    if(audio) html += `<audio controls src="${audio.url}" style="margin-top:6px;"></audio>`;
+    html += `</div>`;
+  });
+  if(p.ratings && Object.keys(p.ratings).length){
+    html += `<div class="detail-item"><h4>Self-Evaluation</h4>`;
+    Object.keys(p.ratings).forEach(k=>{ html += `<span class="rate-chip">${k}: ${p.ratings[k]}/10</span>`; });
+    html += `</div>`;
+  }
+  html += `</div></div>`;
+  document.getElementById('detailOverlayWrap').innerHTML = html;
+}
+function closeDetail(){ document.getElementById('detailOverlayWrap').innerHTML=''; }
+
+/* ================= THEME ================= */
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const html = document.documentElement;
+  const isLight = html.getAttribute('data-theme')==='light';
+  html.setAttribute('data-theme', isLight?'dark':'light');
+  document.getElementById('themeToggle').textContent = isLight ? '🌙' : '☀️';
+});
+
+/* ================= INIT ================= */
+function renderAll(){ renderStaticContent(); renderExercises(); updateProgress(); updateBadges(); }
+document.getElementById('nameInput').focus();
+</script>
+</body>
+</html>
