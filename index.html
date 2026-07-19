@@ -1,695 +1,2352 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Day 1 — Communication Foundation</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Day 2 — Group Discussion Readiness</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-<!-- ===== FIREBASE SDK (compat build — no bundler needed) ===== -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <!-- ===== FIREBASE SDK (compat build — no bundler needed) ===== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
-<style>
-:root{
-  --bg:#0a0f1c; --bg-alt:#0d1424; --bg-elev:#111a2e;
-  --card:rgba(255,255,255,0.045); --card-hover:rgba(255,255,255,0.07); --border:rgba(255,255,255,0.09);
-  --text:#e8edf7; --text-dim:#8b98b3; --text-faint:#5c6989;
-  --gold:#f2b84b; --gold-soft:rgba(242,184,75,0.15);
-  --teal:#5eead4; --teal-soft:rgba(94,234,212,0.15);
-  --coral:#f0806f; --coral-soft:rgba(240,128,111,0.15);
-  --violet:#a78bfa;
-  --radius:18px; --radius-sm:12px;
-  --shadow:0 20px 60px -20px rgba(0,0,0,0.6);
-}
-[data-theme="light"]{
-  --bg:#f4f5f9; --bg-alt:#eceef4; --bg-elev:#ffffff;
-  --card:rgba(20,25,40,0.04); --card-hover:rgba(20,25,40,0.07); --border:rgba(20,25,40,0.1);
-  --text:#161b2c; --text-dim:#525d78; --text-faint:#8991a8;
-  --shadow:0 20px 60px -20px rgba(20,25,40,0.15);
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{
-  font-family:'Inter',sans-serif;
-  background:radial-gradient(ellipse 900px 500px at 15% -5%, rgba(242,184,75,0.10), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(94,234,212,0.08), transparent 55%), var(--bg);
-  color:var(--text); min-height:100vh; transition:background .4s ease,color .4s ease; -webkit-font-smoothing:antialiased;
-}
-.mono{font-family:'JetBrains Mono',monospace;}
-::selection{background:var(--gold);color:#0a0f1c;}
-button{font-family:inherit;cursor:pointer;}
-a{color:inherit;}
-.wrap{max-width:920px;margin:0 auto;padding:0 20px;}
-section{padding:56px 0;}
-.section-head{margin-bottom:28px;}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.eyebrow::before{content:'';width:16px;height:1px;background:var(--gold);}
-h2.title{font-size:clamp(24px,4vw,34px);font-weight:800;letter-spacing:-0.02em;line-height:1.15;}
-.subtext{color:var(--text-dim);font-size:15.5px;margin-top:10px;line-height:1.6;max-width:640px;}
+    <style>
+      :root {
+        --bg: #0a0f1c;
+        --bg-alt: #0d1424;
+        --bg-elev: #111a2e;
+        --card: rgba(255, 255, 255, 0.045);
+        --card-hover: rgba(255, 255, 255, 0.07);
+        --border: rgba(255, 255, 255, 0.09);
+        --text: #e8edf7;
+        --text-dim: #8b98b3;
+        --text-faint: #5c6989;
+        --gold: #f2b84b;
+        --gold-soft: rgba(242, 184, 75, 0.15);
+        --teal: #5eead4;
+        --teal-soft: rgba(94, 234, 212, 0.15);
+        --coral: #f0806f;
+        --coral-soft: rgba(240, 128, 111, 0.15);
+        --violet: #a78bfa;
+        --violet-soft: rgba(167, 139, 250, 0.15);
+        --radius: 18px;
+        --radius-sm: 12px;
+        --shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+      }
+      [data-theme="light"] {
+        --bg: #f4f5f9;
+        --bg-alt: #eceef4;
+        --bg-elev: #ffffff;
+        --card: rgba(20, 25, 40, 0.04);
+        --card-hover: rgba(20, 25, 40, 0.07);
+        --border: rgba(20, 25, 40, 0.1);
+        --text: #161b2c;
+        --text-dim: #525d78;
+        --text-faint: #8991a8;
+        --shadow: 0 20px 60px -20px rgba(20, 25, 40, 0.15);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background:
+          radial-gradient(
+            ellipse 900px 500px at 15% -5%,
+            rgba(242, 184, 75, 0.1),
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 700px 500px at 100% 10%,
+            rgba(94, 234, 212, 0.08),
+            transparent 55%
+          ),
+          var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        transition:
+          background 0.4s ease,
+          color 0.4s ease;
+        -webkit-font-smoothing: antialiased;
+      }
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+      ::selection {
+        background: var(--gold);
+        color: #0a0f1c;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+      }
+      a {
+        color: inherit;
+      }
+      .wrap {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      section {
+        padding: 56px 0;
+      }
+      .section-head {
+        margin-bottom: 28px;
+      }
+      .eyebrow {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gold);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 16px;
+        height: 1px;
+        background: var(--gold);
+      }
+      h2.title {
+        font-size: clamp(24px, 4vw, 34px);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+      }
+      .subtext {
+        color: var(--text-dim);
+        font-size: 15.5px;
+        margin-top: 10px;
+        line-height: 1.6;
+        max-width: 640px;
+      }
 
-/* banners */
-.sys-banner{
-  max-width:920px;margin:14px auto 0;padding:12px 16px;border-radius:12px;font-size:13px;
-  display:flex;align-items:center;gap:10px;border:1px solid;
-}
-.sys-banner.warn{background:rgba(240,128,111,0.1);border-color:rgba(240,128,111,.35);color:#f0a99e;}
-.sys-banner.info{background:rgba(94,234,212,0.08);border-color:rgba(94,234,212,.3);color:var(--teal);}
-.sys-banner button{margin-left:auto;background:none;border:1px solid currentColor;color:inherit;padding:4px 10px;border-radius:7px;font-size:12px;flex-shrink:0;}
+      .sys-banner {
+        max-width: 920px;
+        margin: 14px auto 0;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid;
+      }
+      .sys-banner.warn {
+        background: rgba(240, 128, 111, 0.1);
+        border-color: rgba(240, 128, 111, 0.35);
+        color: #f0a99e;
+      }
+      .sys-banner.info {
+        background: rgba(94, 234, 212, 0.08);
+        border-color: rgba(94, 234, 212, 0.3);
+        color: var(--teal);
+      }
+      .sys-banner button {
+        margin-left: auto;
+        background: none;
+        border: 1px solid currentColor;
+        color: inherit;
+        padding: 4px 10px;
+        border-radius: 7px;
+        font-size: 12px;
+        flex-shrink: 0;
+      }
 
-.nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:color-mix(in srgb, var(--bg) 78%, transparent);border-bottom:1px solid var(--border);}
-.nav-inner{max-width:920px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;}
-.brand{display:flex;flex-direction:column;line-height:1.1;flex-shrink:0;}
-.brand .day{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--gold);letter-spacing:.05em;}
-.brand .sub{font-size:10.5px;color:var(--text-faint);letter-spacing:.08em;}
-.day-dots{display:flex;gap:5px;margin-left:2px;}
-.day-dots span{width:16px;height:4px;border-radius:2px;background:var(--border);}
-.day-dots span.on{background:var(--gold);}
-.prog-wrap{flex:1;display:flex;align-items:center;gap:10px;}
-.prog-track{flex:1;height:6px;border-radius:4px;background:var(--border);overflow:hidden;position:relative;}
-.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--teal));width:0%;transition:width .5s ease;}
-.prog-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);min-width:34px;text-align:right;}
-.nav-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0;font-size:15px;}
-.nav-btn:hover{background:var(--card-hover);}
-.admin-btn,.switch-btn{font-size:12px;font-family:'JetBrains Mono',monospace;padding:0 12px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);white-space:nowrap;}
-.admin-btn:hover,.switch-btn:hover{color:var(--text);background:var(--card-hover);}
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(14px);
+        background: color-mix(in srgb, var(--bg) 78%, transparent);
+        border-bottom: 1px solid var(--border);
+      }
+      .nav-inner {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+        flex-shrink: 0;
+      }
+      .brand .day {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--gold);
+        letter-spacing: 0.05em;
+      }
+      .brand .sub {
+        font-size: 10.5px;
+        color: var(--text-faint);
+        letter-spacing: 0.08em;
+      }
+      .day-dots {
+        display: flex;
+        gap: 5px;
+        margin-left: 2px;
+      }
+      .day-dots span {
+        width: 16px;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--border);
+      }
+      .day-dots span.on {
+        background: var(--gold);
+      }
+      .prog-wrap {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .prog-track {
+        flex: 1;
+        height: 6px;
+        border-radius: 4px;
+        background: var(--border);
+        overflow: hidden;
+        position: relative;
+      }
+      .prog-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, var(--gold), var(--teal));
+        width: 0%;
+        transition: width 0.5s ease;
+      }
+      .prog-pct {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--text-dim);
+        min-width: 34px;
+        text-align: right;
+      }
+      .nav-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.2s;
+        flex-shrink: 0;
+        font-size: 15px;
+      }
+      .nav-btn:hover {
+        background: var(--card-hover);
+      }
+      .admin-btn,
+      .switch-btn {
+        font-size: 12px;
+        font-family: "JetBrains Mono", monospace;
+        padding: 0 12px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text-dim);
+        white-space: nowrap;
+      }
+      .admin-btn:hover,
+      .switch-btn:hover {
+        color: var(--text);
+        background: var(--card-hover);
+      }
 
-.hero{padding:64px 0 40px;position:relative;}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:var(--gold-soft);border:1px solid rgba(242,184,75,0.3);font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--gold);letter-spacing:.08em;margin-bottom:22px;text-transform:uppercase;}
-.hero h1{font-size:clamp(34px,7vw,58px);font-weight:900;letter-spacing:-0.03em;line-height:1.03;max-width:760px;}
-.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;}
-.hero .tagline{margin-top:20px;font-size:18px;color:var(--text-dim);max-width:560px;line-height:1.5;font-style:italic;}
-.waveform{display:flex;align-items:center;gap:4px;height:64px;margin:34px 0 8px;}
-.waveform span{width:5px;border-radius:3px;background:linear-gradient(180deg,var(--gold),var(--teal));animation:wave 1.4s ease-in-out infinite;opacity:.85;}
-@keyframes wave{0%,100%{height:14%;}50%{height:100%;}}
-.hero-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap;}
-.btn-primary{background:linear-gradient(90deg,var(--gold),#e8a53b);color:#1a1206;font-weight:700;font-size:14.5px;padding:14px 26px;border-radius:12px;border:none;box-shadow:0 10px 30px -8px rgba(242,184,75,0.5);transition:transform .2s;}
-.btn-primary:hover{transform:translateY(-2px);}
-.btn-ghost{background:var(--card);border:1px solid var(--border);color:var(--text);font-weight:600;font-size:14.5px;padding:14px 22px;border-radius:12px;transition:.2s;}
-.btn-ghost:hover{background:var(--card-hover);}
+      .hero {
+        padding: 64px 0 40px;
+        position: relative;
+      }
+      .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 99px;
+        background: var(--gold-soft);
+        border: 1px solid rgba(242, 184, 75, 0.3);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--gold);
+        letter-spacing: 0.08em;
+        margin-bottom: 22px;
+        text-transform: uppercase;
+      }
+      .hero h1 {
+        font-size: clamp(34px, 7vw, 58px);
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        line-height: 1.03;
+        max-width: 760px;
+      }
+      .hero h1 em {
+        font-style: normal;
+        background: linear-gradient(90deg, var(--gold), var(--teal));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .hero .tagline {
+        margin-top: 20px;
+        font-size: 18px;
+        color: var(--text-dim);
+        max-width: 580px;
+        line-height: 1.5;
+        font-style: italic;
+      }
+      .waveform {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        height: 64px;
+        margin: 34px 0 8px;
+      }
+      .waveform span {
+        width: 5px;
+        border-radius: 3px;
+        background: linear-gradient(180deg, var(--gold), var(--teal));
+        animation: wave 1.4s ease-in-out infinite;
+        opacity: 0.85;
+      }
+      @keyframes wave {
+        0%,
+        100% {
+          height: 14%;
+        }
+        50% {
+          height: 100%;
+        }
+      }
+      .hero-cta {
+        display: flex;
+        gap: 12px;
+        margin-top: 26px;
+        flex-wrap: wrap;
+      }
+      .btn-primary {
+        background: linear-gradient(90deg, var(--gold), #e8a53b);
+        color: #1a1206;
+        font-weight: 700;
+        font-size: 14.5px;
+        padding: 14px 26px;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px -8px rgba(242, 184, 75, 0.5);
+        transition: transform 0.2s;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+      }
+      .btn-ghost {
+        background: var(--card);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-weight: 600;
+        font-size: 14.5px;
+        padding: 14px 22px;
+        border-radius: 12px;
+        transition: 0.2s;
+      }
+      .btn-ghost:hover {
+        background: var(--card-hover);
+      }
 
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);backdrop-filter:blur(10px);}
-.grid{display:grid;gap:14px;}
-.grid-2{grid-template-columns:repeat(2,1fr);}
-.grid-3{grid-template-columns:repeat(3,1fr);}
-@media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        backdrop-filter: blur(10px);
+      }
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+      .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      @media (max-width: 640px) {
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+      }
 
-.mindset-card{padding:20px;display:flex;gap:12px;align-items:flex-start;transition:.25s;}
-.mindset-card:hover{background:var(--card-hover);transform:translateY(-2px);}
-.mindset-card .num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);font-weight:700;flex-shrink:0;padding-top:2px;}
-.mindset-card p{font-size:14.5px;line-height:1.5;color:var(--text);}
+      .mindset-card {
+        padding: 20px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        transition: 0.25s;
+      }
+      .mindset-card:hover {
+        background: var(--card-hover);
+        transform: translateY(-2px);
+      }
+      .mindset-card .num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--gold);
+        font-weight: 700;
+        flex-shrink: 0;
+        padding-top: 2px;
+      }
+      .mindset-card p {
+        font-size: 14.5px;
+        line-height: 1.5;
+        color: var(--text);
+      }
 
-.flow{display:flex;flex-direction:column;gap:0;max-width:340px;margin:20px auto 0;}
-.flow-step{padding:16px 20px;border-radius:var(--radius-sm);text-align:center;font-weight:700;font-size:15px;border:1px solid var(--border);position:relative;}
-.flow-step .icon{font-size:20px;display:block;margin-bottom:4px;}
-.flow-arrow{display:flex;justify-content:center;padding:6px 0;color:var(--text-faint);font-size:18px;}
-.flow-step.s1{background:var(--teal-soft);border-color:rgba(94,234,212,.35);}
-.flow-step.s2{background:rgba(167,139,250,.13);border-color:rgba(167,139,250,.35);}
-.flow-step.s3{background:var(--gold-soft);border-color:rgba(242,184,75,.35);}
-.flow-step.s4{background:var(--coral-soft);border-color:rgba(240,128,111,.35);}
+      .rule-card {
+        padding: 20px;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        border-color: rgba(242, 184, 75, 0.25);
+      }
+      .rule-card .num {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: var(--gold-soft);
+        border: 1px solid rgba(242, 184, 75, 0.35);
+        color: var(--gold);
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .rule-card p {
+        font-size: 14.5px;
+        line-height: 1.55;
+        color: var(--text);
+        font-weight: 600;
+      }
+      .rules-note {
+        margin-top: 16px;
+        font-size: 13px;
+        color: var(--text-faint);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-.framework{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:22px;}
-.fw-chip{padding:10px 16px;border-radius:99px;background:var(--card);border:1px solid var(--border);font-weight:700;font-size:13.5px;font-family:'JetBrains Mono',monospace;}
-.fw-arrow{color:var(--text-faint);}
+      .flow {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        max-width: 340px;
+        margin: 20px auto 0;
+      }
+      .flow-step {
+        padding: 16px 20px;
+        border-radius: var(--radius-sm);
+        text-align: center;
+        font-weight: 700;
+        font-size: 15px;
+        border: 1px solid var(--border);
+        position: relative;
+      }
+      .flow-step .icon {
+        font-size: 20px;
+        display: block;
+        margin-bottom: 4px;
+      }
+      .flow-arrow {
+        display: flex;
+        justify-content: center;
+        padding: 6px 0;
+        color: var(--text-faint);
+        font-size: 18px;
+      }
+      .flow-step.s1 {
+        background: var(--teal-soft);
+        border-color: rgba(94, 234, 212, 0.35);
+      }
+      .flow-step.s2 {
+        background: var(--violet-soft);
+        border-color: rgba(167, 139, 250, 0.35);
+      }
+      .flow-step.s3 {
+        background: var(--gold-soft);
+        border-color: rgba(242, 184, 75, 0.35);
+      }
+      .flow-step.s4 {
+        background: var(--coral-soft);
+        border-color: rgba(240, 128, 111, 0.35);
+      }
+      .flow-step.s5 {
+        background: rgba(94, 234, 212, 0.1);
+        border-color: rgba(94, 234, 212, 0.25);
+      }
 
-.ex-card{border-radius:var(--radius);border:1px solid var(--border);background:var(--card);margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
-.ex-card.done{border-color:rgba(94,234,212,0.4);}
-.ex-head{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;user-select:none;}
-.ex-num{width:38px;height:38px;border-radius:10px;background:var(--bg-elev);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--text-dim);flex-shrink:0;}
-.ex-card.done .ex-num{background:var(--teal-soft);border-color:rgba(94,234,212,.4);color:var(--teal);}
-.ex-titles{flex:1;min-width:0;}
-.ex-titles h3{font-size:16px;font-weight:700;}
-.ex-titles .ex-type{font-size:12px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;margin-top:2px;}
-.ex-check{width:24px;height:24px;border-radius:7px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:transparent;transition:.2s;}
-.ex-card.done .ex-check{background:var(--teal);border-color:var(--teal);color:#06251f;}
-.ex-chevron{color:var(--text-faint);transition:transform .25s;flex-shrink:0;}
-.ex-card.open .ex-chevron{transform:rotate(180deg);}
-.ex-body{max-height:0;overflow:hidden;transition:max-height .35s ease;}
-.ex-card.open .ex-body{max-height:3200px;}
-.ex-body-inner{padding:0 20px 22px;border-top:1px solid var(--border);padding-top:18px;}
-.ex-instr{color:var(--text-dim);font-size:14.5px;line-height:1.65;margin-bottom:16px;}
-.ex-instr ul{padding-left:18px;margin-top:6px;}
-.ex-instr li{margin-bottom:3px;}
+      .framework {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        margin-top: 22px;
+      }
+      .fw-chip {
+        padding: 10px 16px;
+        border-radius: 99px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        font-weight: 700;
+        font-size: 13.5px;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .fw-arrow {
+        color: var(--text-faint);
+      }
 
-.pill-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
-.pill{padding:8px 14px;border-radius:99px;background:var(--bg-elev);border:1px solid var(--border);font-size:13px;font-weight:600;}
+      .ex-card {
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--card);
+        margin-bottom: 14px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+      }
+      .ex-card.done {
+        border-color: rgba(94, 234, 212, 0.4);
+      }
+      .ex-head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px 20px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .ex-num {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--text-dim);
+        flex-shrink: 0;
+      }
+      .ex-card.done .ex-num {
+        background: var(--teal-soft);
+        border-color: rgba(94, 234, 212, 0.4);
+        color: var(--teal);
+      }
+      .ex-titles {
+        flex: 1;
+        min-width: 0;
+      }
+      .ex-titles h3 {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .ex-titles .ex-type {
+        font-size: 12px;
+        color: var(--text-faint);
+        font-family: "JetBrains Mono", monospace;
+        margin-top: 2px;
+      }
+      .ex-check {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        border: 1.5px solid var(--border);
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: transparent;
+        transition: 0.2s;
+      }
+      .ex-card.done .ex-check {
+        background: var(--teal);
+        border-color: var(--teal);
+        color: #06251f;
+      }
+      .ex-chevron {
+        color: var(--text-faint);
+        transition: transform 0.25s;
+        flex-shrink: 0;
+      }
+      .ex-card.open .ex-chevron {
+        transform: rotate(180deg);
+      }
+      .ex-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+      }
+      .ex-card.open .ex-body {
+        max-height: 4200px;
+      }
+      .ex-body-inner {
+        padding: 0 20px 22px;
+        border-top: 1px solid var(--border);
+        padding-top: 18px;
+      }
+      .ex-instr {
+        color: var(--text-dim);
+        font-size: 14.5px;
+        line-height: 1.65;
+        margin-bottom: 16px;
+      }
+      .ex-instr ul {
+        padding-left: 18px;
+        margin-top: 6px;
+      }
+      .ex-instr li {
+        margin-bottom: 3px;
+      }
 
-.timer-box{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--radius-sm);background:var(--bg-elev);border:1px solid var(--border);margin-bottom:16px;}
-.timer-display{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;min-width:64px;}
-.timer-btn{padding:9px 16px;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--text);font-weight:600;font-size:13px;transition:.2s;}
-.timer-btn:hover{background:var(--card-hover);}
-.timer-btn.active{background:var(--gold);color:#1a1206;border-color:var(--gold);}
-.timer-label{font-size:12px;color:var(--text-faint);flex:1;}
+      .opp-card {
+        padding: 14px 16px;
+        border-radius: var(--radius-sm);
+        background: var(--coral-soft);
+        border: 1px dashed rgba(240, 128, 111, 0.4);
+        margin-bottom: 16px;
+      }
+      .opp-card .opp-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--coral);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+        font-weight: 700;
+      }
+      .opp-card .opp-text {
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--text);
+        font-style: italic;
+      }
 
-.rec-box{padding:16px;border-radius:var(--radius-sm);background:var(--bg-elev);border:1px solid var(--border);margin-bottom:16px;}
-.rec-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.rec-btn{width:50px;height:50px;border-radius:50%;border:2px solid var(--coral);background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;}
-.rec-btn .dot{width:18px;height:18px;border-radius:50%;background:var(--coral);}
-.rec-btn.recording{background:var(--coral);animation:pulse 1.2s infinite;}
-.rec-btn.recording .dot{border-radius:4px;background:#fff;width:14px;height:14px;}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(240,128,111,.5);}70%{box-shadow:0 0 0 14px rgba(240,128,111,0);}100%{box-shadow:0 0 0 0 rgba(240,128,111,0);}}
-.rec-status{font-size:13px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;}
-audio{width:100%;margin-top:12px;height:36px;}
-.rec-note{font-size:12px;color:var(--text-faint);margin-top:8px;}
-.save-note{font-size:12px;color:var(--teal);margin-top:8px;display:none;}
-.upload-note{font-size:12px;color:var(--gold);margin-top:6px;display:none;}
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+      .pill {
+        padding: 8px 14px;
+        border-radius: 99px;
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 600;
+      }
 
-textarea.notepad{width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);padding:12px 14px;font-family:inherit;font-size:14px;resize:vertical;min-height:70px;margin-bottom:8px;}
-textarea.notepad:focus{outline:none;border-color:var(--gold);}
+      .timer-box {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        margin-bottom: 16px;
+      }
+      .timer-display {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 24px;
+        font-weight: 700;
+        min-width: 64px;
+      }
+      .timer-btn {
+        padding: 9px 16px;
+        border-radius: 9px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+        font-weight: 600;
+        font-size: 13px;
+        transition: 0.2s;
+      }
+      .timer-btn:hover {
+        background: var(--card-hover);
+      }
+      .timer-btn.active {
+        background: var(--gold);
+        color: #1a1206;
+        border-color: var(--gold);
+      }
+      .timer-label {
+        font-size: 12px;
+        color: var(--text-faint);
+        flex: 1;
+      }
 
-.choice-row{display:flex;gap:10px;margin-bottom:14px;}
-.choice-btn{flex:1;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg-elev);font-weight:700;transition:.2s;}
-.choice-btn.agree.sel{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);}
-.choice-btn.disagree.sel{background:var(--coral-soft);border-color:var(--coral);color:var(--coral);}
-.statement-item{padding:14px 0;border-top:1px solid var(--border);}
-.statement-item:first-child{border-top:none;}
-.statement-text{font-weight:600;font-size:14.5px;margin-bottom:10px;}
+      .rec-box {
+        padding: 16px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        margin-bottom: 16px;
+      }
+      .rec-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .rec-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 2px solid var(--coral);
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: 0.2s;
+      }
+      .rec-btn .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--coral);
+      }
+      .rec-btn.recording {
+        background: var(--coral);
+        animation: pulse 1.2s infinite;
+      }
+      .rec-btn.recording .dot {
+        border-radius: 4px;
+        background: #fff;
+        width: 14px;
+        height: 14px;
+      }
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(240, 128, 111, 0.5);
+        }
+        70% {
+          box-shadow: 0 0 0 14px rgba(240, 128, 111, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(240, 128, 111, 0);
+        }
+      }
+      .rec-status {
+        font-size: 13px;
+        color: var(--text-dim);
+        font-family: "JetBrains Mono", monospace;
+      }
+      audio {
+        width: 100%;
+        margin-top: 12px;
+        height: 36px;
+      }
+      .rec-note {
+        font-size: 12px;
+        color: var(--text-faint);
+        margin-top: 8px;
+      }
+      .save-note {
+        font-size: 12px;
+        color: var(--teal);
+        margin-top: 8px;
+        display: none;
+      }
+      .upload-note {
+        font-size: 12px;
+        color: var(--gold);
+        margin-top: 6px;
+        display: none;
+      }
 
-.ex-complete-row{display:flex;justify-content:flex-end;margin-top:6px;}
-.complete-btn{padding:10px 18px;border-radius:9px;border:1px solid rgba(94,234,212,.4);background:var(--teal-soft);color:var(--teal);font-weight:700;font-size:13px;}
-.complete-btn.is-done{background:var(--teal);color:#06251f;}
+      textarea.notepad {
+        width: 100%;
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        padding: 12px 14px;
+        font-family: inherit;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 70px;
+        margin-bottom: 8px;
+      }
+      textarea.notepad:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
 
-.rate-row{display:flex;align-items:center;gap:14px;padding:10px 0;}
-.rate-label{flex:0 0 130px;font-size:13.5px;font-weight:600;}
-.rate-row input[type=range]{flex:1;accent-color:var(--gold);}
-.rate-val{width:26px;text-align:right;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--gold);}
+      .prep-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .prep-field label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: var(--gold);
+        font-family: "JetBrains Mono", monospace;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .prep-field textarea {
+        width: 100%;
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        padding: 12px 14px;
+        font-family: inherit;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 56px;
+      }
+      .prep-field textarea:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
 
-.badge-strip{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
-.badge{display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;background:var(--card);border:1px solid var(--border);font-size:12.5px;font-weight:600;color:var(--text-faint);transition:.3s;}
-.badge.earned{background:var(--gold-soft);border-color:rgba(242,184,75,.4);color:var(--gold);}
+      .ai-fb-row {
+        margin: 6px 0 4px;
+      }
+      .ai-fb-btn {
+        padding: 10px 16px;
+        border-radius: 9px;
+        border: 1px solid rgba(167, 139, 250, 0.4);
+        background: var(--violet-soft);
+        color: var(--violet);
+        font-weight: 700;
+        font-size: 13px;
+        transition: 0.2s;
+      }
+      .ai-fb-btn:hover {
+        background: rgba(167, 139, 250, 0.22);
+      }
+      .ai-fb-btn:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .ai-fb-box {
+        margin-top: 10px;
+        padding: 14px 16px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-elev);
+        border: 1px dashed rgba(167, 139, 250, 0.4);
+      }
+      .ai-fb-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--violet);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+        font-weight: 700;
+      }
+      .ai-fb-text {
+        font-size: 13.5px;
+        line-height: 1.65;
+        color: var(--text-dim);
+      }
+      .ai-fb-loading,
+      .ai-fb-empty {
+        font-size: 13px;
+        color: var(--text-faint);
+      }
 
-.sched-row{display:flex;gap:14px;align-items:center;padding:13px 0;border-top:1px solid var(--border);}
-.sched-row:first-child{border-top:none;}
-.sched-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);width:64px;flex-shrink:0;}
+      .choice-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .choice-btn {
+        flex: 1;
+        padding: 12px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--bg-elev);
+        font-weight: 700;
+        transition: 0.2s;
+      }
+      .choice-btn.agree.sel {
+        background: var(--teal-soft);
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+      .choice-btn.disagree.sel {
+        background: var(--coral-soft);
+        border-color: var(--coral);
+        color: var(--coral);
+      }
+      .statement-item {
+        padding: 14px 0;
+        border-top: 1px solid var(--border);
+      }
+      .statement-item:first-child {
+        border-top: none;
+      }
+      .statement-text {
+        font-weight: 600;
+        font-size: 14.5px;
+        margin-bottom: 10px;
+      }
 
-.final-msg{text-align:center;padding:50px 30px;border-radius:24px;background:linear-gradient(160deg, rgba(242,184,75,0.09), rgba(94,234,212,0.06));border:1px solid var(--border);}
-.final-msg p{font-size:17px;line-height:1.7;max-width:520px;margin:0 auto 14px;color:var(--text);}
-.final-msg p.emph{font-weight:800;font-size:20px;background:linear-gradient(90deg,var(--gold),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent;}
+      .example-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 15px;
+        border-radius: 99px;
+        background: var(--gold-soft);
+        border: 1px solid rgba(242, 184, 75, 0.35);
+        color: var(--gold);
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 14px;
+        transition: 0.2s;
+      }
+      .example-toggle-btn:hover {
+        background: rgba(242, 184, 75, 0.22);
+      }
+      .example-toggle-btn .chev {
+        transition: transform 0.25s;
+        font-size: 11px;
+      }
+      .example-toggle-btn.open .chev {
+        transform: rotate(180deg);
+      }
+      .example-box {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+        margin-bottom: 4px;
+      }
+      .example-box.open {
+        max-height: 2400px;
+        margin-bottom: 16px;
+      }
+      .example-item {
+        padding: 14px 16px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-elev);
+        border: 1px dashed rgba(242, 184, 75, 0.35);
+        margin-bottom: 10px;
+      }
+      .example-item:last-child {
+        margin-bottom: 0;
+      }
+      .example-item .ex-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--gold);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+        font-weight: 700;
+      }
+      .example-item .ex-text {
+        font-size: 13.5px;
+        line-height: 1.65;
+        color: var(--text-dim);
+      }
 
-.modal-overlay{position:fixed;inset:0;background:rgba(4,7,14,0.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
-.modal-box{background:var(--bg-elev);border:1px solid var(--border);border-radius:22px;padding:36px 30px;max-width:400px;width:100%;box-shadow:var(--shadow);text-align:center;}
-.modal-box h2{font-size:22px;font-weight:800;margin-bottom:8px;}
-.modal-box p{color:var(--text-dim);font-size:14px;margin-bottom:22px;}
-.modal-box input{width:100%;padding:13px 16px;border-radius:11px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:15px;margin-bottom:14px;font-family:inherit;}
-.modal-box input:focus{outline:none;border-color:var(--gold);}
-.modal-box .continue-chip{padding:10px 14px;border-radius:10px;background:var(--card);border:1px solid var(--border);margin-bottom:14px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;}
+      .ex-complete-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 6px;
+      }
+      .complete-btn {
+        padding: 10px 18px;
+        border-radius: 9px;
+        border: 1px solid rgba(94, 234, 212, 0.4);
+        background: var(--teal-soft);
+        color: var(--teal);
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .complete-btn.is-done {
+        background: var(--teal);
+        color: #06251f;
+      }
 
-.admin-panel{display:none;}
-.admin-panel.show{display:block;}
-.main-content.hide{display:none;}
-.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-@media(max-width:640px){.stat-strip{grid-template-columns:repeat(2,1fr);}}
-.stat-box{padding:18px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);text-align:center;}
-.stat-box .num{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:800;color:var(--gold);}
-.stat-box .lbl{font-size:11.5px;color:var(--text-faint);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
-.student-row{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:var(--radius-sm);background:var(--card);border:1px solid var(--border);margin-bottom:10px;cursor:pointer;transition:.2s;}
-.student-row:hover{background:var(--card-hover);}
-.student-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--teal));display:flex;align-items:center;justify-content:center;font-weight:800;color:#0a0f1c;flex-shrink:0;}
-.student-info{flex:1;min-width:0;}
-.student-info .name{font-weight:700;font-size:14.5px;}
-.student-info .meta{font-size:12px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
-.mini-bar{width:80px;height:5px;border-radius:3px;background:var(--border);overflow:hidden;flex-shrink:0;}
-.mini-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--teal));}
-.del-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-faint);flex-shrink:0;}
-.del-btn:hover{color:var(--coral);border-color:var(--coral);}
+      .rate-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 0;
+      }
+      .rate-label {
+        flex: 0 0 150px;
+        font-size: 13.5px;
+        font-weight: 600;
+      }
+      .rate-row input[type="range"] {
+        flex: 1;
+        accent-color: var(--gold);
+      }
+      .rate-val {
+        width: 26px;
+        text-align: right;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 700;
+        color: var(--gold);
+      }
 
-.detail-overlay{position:fixed;inset:0;background:rgba(4,7,14,0.7);backdrop-filter:blur(4px);z-index:150;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
-.detail-box{background:var(--bg-elev);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:560px;width:100%;margin-top:20px;}
-.detail-box h3{font-size:20px;font-weight:800;margin-bottom:4px;}
-.detail-box .close-x{float:right;background:var(--card);border:1px solid var(--border);width:32px;height:32px;border-radius:8px;color:var(--text);}
-.detail-item{padding:12px 0;border-top:1px solid var(--border);}
-.detail-item:first-of-type{border-top:none;}
-.detail-item h4{font-size:13px;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
-.detail-item p{font-size:13.5px;color:var(--text-dim);line-height:1.5;}
-.rate-chip{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border-radius:99px;background:var(--card);font-size:12px;margin:3px 4px 0 0;font-family:'JetBrains Mono',monospace;}
-.empty-state{text-align:center;padding:50px 20px;color:var(--text-faint);}
-.empty-state .icon{font-size:34px;margin-bottom:10px;}
-footer{text-align:center;padding:40px 20px 60px;color:var(--text-faint);font-size:12.5px;}
+      .badge-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 14px;
+        border-radius: 99px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text-faint);
+        transition: 0.3s;
+      }
+      .badge.earned {
+        background: var(--gold-soft);
+        border-color: rgba(242, 184, 75, 0.4);
+        color: var(--gold);
+      }
 
-/* ---- Picture scenes ---- */
-.scene-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
-.scene-tab{padding:8px 14px;border-radius:99px;border:1px solid var(--border);background:var(--bg-elev);font-size:12.5px;font-weight:600;color:var(--text-dim);}
-.scene-tab.active{background:var(--gold-soft);border-color:rgba(242,184,75,.4);color:var(--gold);}
-.scene-box{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border);margin-bottom:16px;background:var(--bg-elev);}
-.scene-box svg{display:block;width:100%;height:auto;}
-.scene-questions{padding:4px 0 0;}
-.scene-questions .q{font-size:13.5px;font-weight:600;margin:10px 0 6px;color:var(--text);}
+      .sched-row {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        padding: 13px 0;
+        border-top: 1px solid var(--border);
+      }
+      .sched-row:first-child {
+        border-top: none;
+      }
+      .sched-time {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        color: var(--gold);
+        width: 64px;
+        flex-shrink: 0;
+      }
 
-/* ---- Story ---- */
-.story-box{padding:18px 20px;border-radius:var(--radius-sm);background:var(--bg-elev);border:1px solid var(--border);margin-bottom:16px;}
-.story-box p{font-size:14.5px;line-height:1.75;color:var(--text);margin-bottom:10px;}
-.story-box p:last-child{margin-bottom:0;}
-.mcq{margin-bottom:16px;}
-.mcq .qtext{font-weight:700;font-size:14px;margin-bottom:10px;}
-.mcq-opt{display:block;width:100%;text-align:left;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elev);margin-bottom:8px;font-size:13.5px;transition:.2s;color:var(--text);}
-.mcq-opt:hover{background:var(--card-hover);}
-.mcq-opt.correct{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);}
-.mcq-opt.wrong{background:var(--coral-soft);border-color:var(--coral);color:var(--coral);}
-.mcq-opt.disabled{pointer-events:none;}
+      .final-msg {
+        text-align: center;
+        padding: 50px 30px;
+        border-radius: 24px;
+        background: linear-gradient(
+          160deg,
+          rgba(242, 184, 75, 0.09),
+          rgba(94, 234, 212, 0.06)
+        );
+        border: 1px solid var(--border);
+      }
+      .final-msg p {
+        font-size: 17px;
+        line-height: 1.7;
+        max-width: 520px;
+        margin: 0 auto 14px;
+        color: var(--text);
+      }
+      .final-msg p.emph {
+        font-weight: 800;
+        font-size: 20px;
+        background: linear-gradient(90deg, var(--gold), var(--teal));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
 
-/* ---- Translation drill ---- */
-.tr-row{padding:14px 0;border-top:1px solid var(--border);}
-.tr-row:first-child{border-top:none;}
-.tr-tamil{font-size:16px;font-weight:700;margin-bottom:8px;}
-.tr-input{width:100%;background:var(--bg-elev);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-family:inherit;font-size:13.5px;margin-bottom:6px;}
-.tr-actions{display:flex;gap:8px;align-items:center;}
-.tr-reveal-btn{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--card);font-size:12px;color:var(--text-dim);}
-.tr-answer{font-size:13px;color:var(--teal);display:none;padding:8px 10px;background:var(--teal-soft);border-radius:8px;margin-top:6px;}
-</style>
-</head>
-<body>
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 7, 14, 0.75);
+        backdrop-filter: blur(6px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+        padding: 20px;
+      }
+      .modal-box {
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 36px 30px;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: var(--shadow);
+        text-align: center;
+      }
+      .modal-box h2 {
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+      .modal-box p {
+        color: var(--text-dim);
+        font-size: 14px;
+        margin-bottom: 22px;
+      }
+      .modal-box input {
+        width: 100%;
+        padding: 13px 16px;
+        border-radius: 11px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 15px;
+        margin-bottom: 14px;
+        font-family: inherit;
+      }
+      .modal-box input:focus {
+        outline: none;
+        border-color: var(--gold);
+      }
+      .modal-box .continue-chip {
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        margin-bottom: 14px;
+        font-size: 13.5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-<!-- ===== FIREBASE CONFIG — replace with your project's config ===== -->
-<script>
-const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-</script>
+      .admin-panel {
+        display: none;
+      }
+      .admin-panel.show {
+        display: block;
+      }
+      .main-content.hide {
+        display: none;
+      }
+      .stat-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      @media (max-width: 640px) {
+        .stat-strip {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .stat-box {
+        padding: 18px;
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        border: 1px solid var(--border);
+        text-align: center;
+      }
+      .stat-box .num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--gold);
+      }
+      .stat-box .lbl {
+        font-size: 11.5px;
+        color: var(--text-faint);
+        margin-top: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .student-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 18px;
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        border: 1px solid var(--border);
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .student-row:hover {
+        background: var(--card-hover);
+      }
+      .student-avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold), var(--teal));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #0a0f1c;
+        flex-shrink: 0;
+      }
+      .student-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .student-info .name {
+        font-weight: 700;
+        font-size: 14.5px;
+      }
+      .student-info .meta {
+        font-size: 12px;
+        color: var(--text-faint);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .mini-bar {
+        width: 80px;
+        height: 5px;
+        border-radius: 3px;
+        background: var(--border);
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .mini-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold), var(--teal));
+      }
+      .del-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-faint);
+        flex-shrink: 0;
+      }
+      .del-btn:hover {
+        color: var(--coral);
+        border-color: var(--coral);
+      }
 
-<!-- ===== NAME GATE ===== -->
-<div class="modal-overlay" id="nameGate">
-  <div class="modal-box">
-    <h2>Welcome 👋</h2>
-    <p>Enter your name to begin Day 1. Your progress is saved automatically so your mentor can track it.</p>
-    <div id="continueChip"></div>
-    <input type="text" id="nameInput" placeholder="Your full name" autocomplete="off">
-    <button class="btn-primary" style="width:100%" onclick="startSession()">Start Day 1</button>
-  </div>
-</div>
+      .detail-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 7, 14, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 150;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 40px 16px;
+        overflow-y: auto;
+      }
+      .detail-box {
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 28px;
+        max-width: 560px;
+        width: 100%;
+        margin-top: 20px;
+      }
+      .detail-box h3 {
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+      .detail-box .close-x {
+        float: right;
+        background: var(--card);
+        border: 1px solid var(--border);
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        color: var(--text);
+      }
+      .detail-item {
+        padding: 12px 0;
+        border-top: 1px solid var(--border);
+      }
+      .detail-item:first-of-type {
+        border-top: none;
+      }
+      .detail-item h4 {
+        font-size: 13px;
+        color: var(--gold);
+        font-family: "JetBrains Mono", monospace;
+        margin-bottom: 6px;
+      }
+      .detail-item p {
+        font-size: 13.5px;
+        color: var(--text-dim);
+        line-height: 1.5;
+      }
+      .rate-chip {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 99px;
+        background: var(--card);
+        font-size: 12px;
+        margin: 3px 4px 0 0;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: var(--text-faint);
+      }
+      .empty-state .icon {
+        font-size: 34px;
+        margin-bottom: 10px;
+      }
+      footer {
+        text-align: center;
+        padding: 40px 20px 60px;
+        color: var(--text-faint);
+        font-size: 12.5px;
+      }
 
-<div id="bannerWrap"></div>
+      /* ---- Translation drill ---- */
+      .tr-row {
+        padding: 14px 0;
+        border-top: 1px solid var(--border);
+      }
+      .tr-row:first-child {
+        border-top: none;
+      }
+      .tr-tamil {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .tr-input {
+        width: 100%;
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        color: var(--text);
+        padding: 10px 12px;
+        font-family: inherit;
+        font-size: 13.5px;
+        margin-bottom: 6px;
+      }
+      .tr-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .tr-reveal-btn {
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .tr-answer {
+        font-size: 13px;
+        color: var(--teal);
+        display: none;
+        padding: 8px 10px;
+        background: var(--teal-soft);
+        border-radius: 8px;
+        margin-top: 6px;
+      }
 
-<!-- ===== NAV ===== -->
-<div class="nav">
-  <div class="nav-inner">
-    <div class="brand">
-      <span class="day">DAY 01 <span style="color:var(--text-faint)">/ 04</span></span>
-      <div class="day-dots"><span class="on"></span><span></span><span></span><span></span></div>
-    </div>
-    <div class="prog-wrap">
-      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
-      <span class="prog-pct mono" id="progPct">0%</span>
-    </div>
-    <button class="nav-btn" id="themeToggle" title="Toggle theme">🌙</button>
-    <button class="switch-btn" id="switchBtn" title="Switch student">Switch</button>
-    <button class="admin-btn" id="adminToggle">Admin</button>
-  </div>
-</div>
+      /* ---- Video comprehension ---- */
+      .video-block {
+        margin-bottom: 22px;
+        padding-bottom: 22px;
+        border-bottom: 1px dashed var(--border);
+      }
+      .video-block:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+      .video-title {
+        font-weight: 700;
+        font-size: 14.5px;
+        margin-bottom: 3px;
+      }
+      .video-meta {
+        font-size: 12px;
+        color: var(--text-faint);
+        margin-bottom: 10px;
+      }
+      .video-embed-wrap {
+        position: relative;
+        padding-bottom: 56.25%;
+        height: 0;
+        overflow: hidden;
+        border-radius: var(--radius-sm);
+        margin-bottom: 14px;
+        border: 1px solid var(--border);
+        background: var(--bg-elev);
+      }
+      .video-embed-wrap iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+      .qa-item {
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-elev);
+        border: 1px solid var(--border);
+        margin-bottom: 10px;
+      }
+      .qa-item:last-child {
+        margin-bottom: 0;
+      }
+      .qa-q {
+        font-size: 13.5px;
+        color: var(--text);
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+      .qa-reveal-btn {
+        padding: 7px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .qa-answer {
+        font-size: 13px;
+        color: var(--teal);
+        display: none;
+        padding: 8px 10px;
+        background: var(--teal-soft);
+        border-radius: 8px;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== FIREBASE CONFIG — replace with your project's config ===== -->
+    <script>
+      const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyC7hfLYTLS8AYAvfK9Uy5LeAQVmwJScLbo",
+        authDomain: "hexaware-communication.firebaseapp.com",
+        projectId: "hexaware-communication",
+        storageBucket: "hexaware-communication.firebasestorage.app",
+        messagingSenderId: "806788224797",
+        appId: "1:806788224797:web:d5a7bf1b0b60690aad73f4",
+      };
+      /* Default student for this guide. Change here if you reuse this file for someone else. */
+      const STUDENT_NAME = "Vinothaki";
+    </script>
 
-<div class="main-content" id="mainContent">
-<div class="wrap">
-  <div class="hero">
-    <span class="hero-eyebrow">Communication Foundation Program</span>
-    <h1>Speak with confidence<br>before speaking with <em>perfect English.</em></h1>
-    <p class="tagline">Today isn't about grammar. It's about finding your voice — listening well, thinking clearly, and speaking without freezing.</p>
-    <div class="waveform" id="heroWave"></div>
-    <div class="hero-cta">
-      <button class="btn-primary" onclick="document.getElementById('objectives').scrollIntoView({behavior:'smooth'})">Begin Day 1 →</button>
-      <button class="btn-ghost" onclick="document.getElementById('exercises').scrollIntoView({behavior:'smooth'})">Jump to Exercises</button>
-    </div>
-  </div>
-
-  <section id="objectives">
-    <div class="section-head">
-      <div class="eyebrow">Today's Motto</div>
-      <h2 class="title">Communication has three skills</h2>
-      <p class="subtext">Grammar and vocabulary can be improved later. Confidence and communication come first — and confidence is built through Listening, Thinking, and Speaking.</p>
-    </div>
-    <div class="grid grid-3" id="objList"></div>
-  </section>
-
-  <section>
-    <div class="section-head"><div class="eyebrow">Mindset</div><h2 class="title">Keep this in mind all day</h2></div>
-    <div class="grid grid-2" id="mindsetGrid"></div>
-  </section>
-
-  <section>
-    <div class="grid grid-2" style="align-items:start;">
-      <div class="card" style="padding:26px;">
-        <div class="eyebrow" style="margin-bottom:16px;">Communication Flow</div>
-        <div class="flow">
-          <div class="flow-step s1"><span class="icon">👂</span>Listening</div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step s2"><span class="icon">🧠</span>Thinking</div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step s3"><span class="icon">🗣️</span>Speaking</div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-step s4"><span class="icon">✨</span>Confidence</div>
-        </div>
+    <!-- ===== NAME GATE ===== -->
+    <div class="modal-overlay" id="nameGate">
+      <div class="modal-box">
+        <h2>Welcome back, Vinothaki 👋</h2>
+        <p>
+          Enter your name to begin Day 2. If you used the same name on Day 1,
+          your mentor can track both days together.
+        </p>
+        <div id="continueChip"></div>
+        <input
+          type="text"
+          id="nameInput"
+          placeholder="Your full name"
+          autocomplete="off"
+          value="Vinothaki"
+        />
+        <button
+          class="btn-primary"
+          style="width: 100%"
+          onclick="startSession()"
+        >
+          Start Day 2
+        </button>
       </div>
-      <div class="card" style="padding:26px;">
-        <div class="eyebrow" style="margin-bottom:6px;">Speaking Framework</div>
-        <p class="subtext" style="margin-bottom:10px;">Almost every GD topic can be spoken using this structure:</p>
-        <div class="framework">
-          <span class="fw-chip">Beginning</span><span class="fw-arrow">→</span>
-          <span class="fw-chip">Reason</span><span class="fw-arrow">→</span>
-          <span class="fw-chip">Example</span><span class="fw-arrow">→</span>
-          <span class="fw-chip">Opinion</span><span class="fw-arrow">→</span>
-          <span class="fw-chip">Conclusion</span>
+    </div>
+
+    <div id="bannerWrap"></div>
+
+    <!-- ===== NAV ===== -->
+    <div class="nav">
+      <div class="nav-inner">
+        <div class="brand">
+          <span class="day"
+            >DAY 02 <span style="color: var(--text-faint)">/ 04</span></span
+          >
+          <div class="day-dots">
+            <span class="on"></span><span class="on"></span><span></span
+            ><span></span>
+          </div>
         </div>
+        <div class="prog-wrap">
+          <div class="prog-track">
+            <div class="prog-fill" id="progFill"></div>
+          </div>
+          <span class="prog-pct mono" id="progPct">0%</span>
+        </div>
+        <button class="nav-btn" id="themeToggle" title="Toggle theme">
+          🌙
+        </button>
+        <button class="switch-btn" id="switchBtn" title="Switch student">
+          Switch
+        </button>
+        <button class="admin-btn" id="adminToggle">Admin</button>
       </div>
     </div>
-  </section>
 
-  <section id="exercises">
-    <div class="section-head">
-      <div class="eyebrow">Practice</div>
-      <h2 class="title">12 Exercises</h2>
-      <p class="subtext">Work through each one. Voice exercises let you record and self-review — your mentor can review them too.</p>
+    <div class="main-content" id="mainContent">
+      <div class="wrap">
+        <div class="hero">
+          <span class="hero-eyebrow"
+            >Communication Foundation Program — Vinothaki, Final Year CSE</span
+          >
+          <h1>
+            Hold your ground, Vinothaki<br />when the group is
+            <em>talking at once.</em>
+          </h1>
+          <p class="tagline">
+            Yesterday was about finding your voice. Today is about using it
+            inside a group — listening fast, thinking in structure, and jumping
+            in without freezing.
+          </p>
+          <div class="waveform" id="heroWave"></div>
+          <div class="hero-cta">
+            <button
+              class="btn-primary"
+              onclick="
+                document
+                  .getElementById('objectives')
+                  .scrollIntoView({ behavior: 'smooth' })
+              "
+            >
+              Begin Day 2 →
+            </button>
+            <button
+              class="btn-ghost"
+              onclick="
+                document
+                  .getElementById('exercises')
+                  .scrollIntoView({ behavior: 'smooth' })
+              "
+            >
+              Jump to Exercises
+            </button>
+          </div>
+        </div>
+
+        <section id="objectives">
+          <div class="section-head">
+            <div class="eyebrow">Today's Motto</div>
+            <h2 class="title">A GD is a conversation, not a solo speech</h2>
+            <p class="subtext">
+              Day 1 built your comfort speaking alone. Today adds the missing
+              piece — thinking in structure fast enough to speak inside a group,
+              and listening well enough to respond to what's actually said.
+            </p>
+          </div>
+          <div class="grid grid-3" id="objList"></div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div class="eyebrow">Mindset</div>
+            <h2 class="title">Keep this in mind all day</h2>
+          </div>
+          <div class="grid grid-2" id="mindsetGrid"></div>
+        </section>
+
+        <section>
+          <div class="grid grid-2" style="align-items: start">
+            <div class="card" style="padding: 26px">
+              <div class="eyebrow" style="margin-bottom: 16px">GD Flow</div>
+              <div class="flow">
+                <div class="flow-step s1">
+                  <span class="icon">👂</span>Listen
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step s2">
+                  <span class="icon">🧩</span>Think in PREP
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step s3">
+                  <span class="icon">🌉</span>Bridge in
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step s4">
+                  <span class="icon">🗣️</span>Speak
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step s5">
+                  <span class="icon">🤝</span>Yield the floor
+                </div>
+              </div>
+            </div>
+            <div class="card" style="padding: 26px">
+              <div class="eyebrow" style="margin-bottom: 6px">
+                GD Opinion Framework
+              </div>
+              <p class="subtext" style="margin-bottom: 10px">
+                Faster than Day 1's framework — built for 15-second turns:
+              </p>
+              <div class="framework">
+                <span class="fw-chip">Point</span
+                ><span class="fw-arrow">→</span>
+                <span class="fw-chip">Reason</span
+                ><span class="fw-arrow">→</span>
+                <span class="fw-chip">Example</span
+                ><span class="fw-arrow">→</span>
+                <span class="fw-chip">Point</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="gdrules">
+          <div class="section-head">
+            <div class="eyebrow">Ground Rules</div>
+            <h2 class="title">5 GD Rules for Today</h2>
+            <p class="subtext">
+              Not the whole rulebook — just enough to practice today without
+              overthinking it. A few more get added each day.
+            </p>
+          </div>
+          <div class="grid grid-2" id="rulesGrid"></div>
+          <div class="rules-note">📌 Rules 6–10 unlock on Day 3.</div>
+        </section>
+
+        <section id="exercises">
+          <div class="section-head">
+            <div class="eyebrow">Practice</div>
+            <h2 class="title" id="exCountTitle">9 Exercises</h2>
+            <p class="subtext">
+              A little harder than Day 1, on purpose. Voice exercises record and
+              save. Written ones can get instant AI coach feedback — look for
+              the 🤖 button.
+            </p>
+          </div>
+          <div id="exerciseList"></div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div class="eyebrow">Session Plan</div>
+            <h2 class="title">Day 2 Schedule</h2>
+          </div>
+          <div class="card" style="padding: 8px 22px" id="scheduleList"></div>
+        </section>
+
+        <section>
+          <div class="section-head">
+            <div class="eyebrow">Before Tomorrow</div>
+            <h2 class="title">Homework</h2>
+          </div>
+          <div class="card" style="padding: 22px">
+            <ol
+              style="
+                padding-left: 20px;
+                color: var(--text-dim);
+                font-size: 14.5px;
+                line-height: 2;
+              "
+              id="hwList"
+            ></ol>
+          </div>
+        </section>
+
+        <section id="finalEval">
+          <div class="section-head">
+            <div class="eyebrow">Self Check</div>
+            <h2 class="title">Final Self-Evaluation</h2>
+            <p class="subtext">
+              Rate yourself honestly from 1–10. This is saved to your profile.
+            </p>
+          </div>
+          <div class="card" style="padding: 22px 24px" id="ratingBox"></div>
+          <div class="badge-strip" id="badgeStrip"></div>
+        </section>
+
+        <section>
+          <div class="final-msg">
+            <p class="emph">
+              Yesterday you found your voice, Vinothaki.<br />Today you learned
+              to use it in a room full of people.
+            </p>
+            <p>You don't need to be the loudest person in the group.</p>
+            <p>You need to be the clearest.</p>
+            <p>One structured point, said calmly, beats three rushed ones.</p>
+          </div>
+        </section>
+      </div>
+      <footer>Day 2 of 4 · Vinothaki's Communication Foundation Program</footer>
     </div>
-    <div id="exerciseList"></div>
-  </section>
 
-  <section>
-    <div class="section-head"><div class="eyebrow">Session Plan</div><h2 class="title">Day 1 Schedule</h2></div>
-    <div class="card" style="padding:8px 22px;" id="scheduleList"></div>
-  </section>
-
-  <section>
-    <div class="section-head"><div class="eyebrow">Before Tomorrow</div><h2 class="title">Homework</h2></div>
-    <div class="card" style="padding:22px;"><ol style="padding-left:20px;color:var(--text-dim);font-size:14.5px;line-height:2;" id="hwList"></ol></div>
-  </section>
-
-  <section id="finalEval">
-    <div class="section-head">
-      <div class="eyebrow">Self Check</div>
-      <h2 class="title">Final Self-Evaluation</h2>
-      <p class="subtext">Rate yourself honestly from 1–10. This is saved to your profile.</p>
+    <div class="admin-panel" id="adminPanel">
+      <div class="wrap" style="padding-top: 40px">
+        <div class="section-head">
+          <div class="eyebrow">Mentor View</div>
+          <h2 class="title">Admin Dashboard — Day 2</h2>
+          <p class="subtext">
+            Every student who has started Day 2 appears here. Tap a student to
+            see their scores, notes, and recordings.
+          </p>
+        </div>
+        <div class="stat-strip" id="statStrip"></div>
+        <div id="studentListWrap"></div>
+      </div>
+      <footer>
+        No password protects this view — anyone with the page link can open it.
+      </footer>
     </div>
-    <div class="card" style="padding:22px 24px;" id="ratingBox"></div>
-    <div class="badge-strip" id="badgeStrip"></div>
-  </section>
 
-  <section>
-    <div class="final-msg">
-      <p class="emph">Today wasn't about learning English.<br>It was about finding your voice.</p>
-      <p>Every confident speaker once started exactly where you are now.</p>
-      <p>Don't aim to sound perfect. Aim to communicate clearly.</p>
-      <p>Confidence is built one conversation at a time.</p>
-    </div>
-  </section>
-</div>
-<footer>Day 1 of 4 · Communication Foundation Program</footer>
-</div>
+    <div id="detailOverlayWrap"></div>
 
-<div class="admin-panel" id="adminPanel">
-  <div class="wrap" style="padding-top:40px;">
-    <div class="section-head">
-      <div class="eyebrow">Mentor View</div>
-      <h2 class="title">Admin Dashboard</h2>
-      <p class="subtext">Every student who has started Day 1 appears here. Tap a student to see their scores, notes, and recordings.</p>
-    </div>
-    <div class="stat-strip" id="statStrip"></div>
-    <div id="studentListWrap"></div>
-  </div>
-  <footer>No password protects this view — anyone with the page link can open it.</footer>
-</div>
+    <script>
+      /* ================= FIREBASE INIT ================= */
+      let FIREBASE_READY = false;
+      let db = null,
+        storageRef = null;
+      try {
+        if (FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
+          firebase.initializeApp(FIREBASE_CONFIG);
+          db = firebase.firestore();
+          storageRef = firebase.storage();
+          FIREBASE_READY = true;
+        }
+      } catch (e) {
+        console.error("Firebase init failed", e);
+      }
 
-<div id="detailOverlayWrap"></div>
+      function showBanner(msg, type) {
+        const wrap = document.getElementById("bannerWrap");
+        const el = document.createElement("div");
+        el.className = "sys-banner " + (type || "warn");
+        el.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()">Dismiss</button>`;
+        wrap.appendChild(el);
+      }
+      if (!FIREBASE_READY) {
+        showBanner(
+          "⚠ Firebase is not configured yet — progress, recordings, and the admin dashboard will not save. Add your Firebase project config at the top of the file.",
+          "warn",
+        );
+      }
+      if (!window.isSecureContext) {
+        showBanner(
+          "⚠ This page is not running on HTTPS — microphone recording will be blocked by the browser. Deploy it to your hosting platform (which serves HTTPS) to enable it.",
+          "warn",
+        );
+      }
 
-<script>
-/* ================= FIREBASE INIT ================= */
-let FIREBASE_READY = false;
-let db=null, storageRef=null;
-try{
-  if(FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY"){
-    firebase.initializeApp(FIREBASE_CONFIG);
-    db = firebase.firestore();
-    storageRef = firebase.storage();
-    FIREBASE_READY = true;
-  }
-}catch(e){ console.error('Firebase init failed', e); }
+      /* ================= STATE & DATA ================= */
+      let CURRENT_STUDENT = null;
+      let PROFILE = null;
 
-function showBanner(msg, type){
-  const wrap = document.getElementById('bannerWrap');
-  const el = document.createElement('div');
-  el.className = 'sys-banner '+(type||'warn');
-  el.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()">Dismiss</button>`;
-  wrap.appendChild(el);
-}
-if(!FIREBASE_READY){
-  showBanner('⚠ Firebase is not configured yet — progress, recordings, and the admin dashboard will not save. Add your Firebase project config at the top of the file.', 'warn');
-}
-if(!window.isSecureContext){
-  showBanner('⚠ This page is not running on HTTPS — microphone recording will be blocked by the browser. Deploy it to your hosting platform (which serves HTTPS) to enable it.', 'warn');
-}
+      const OBJECTIVES = [
+        "Structure an opinion in under 15 seconds using PREP.",
+        "Listen for the main idea, not every word.",
+        "Respond to another person's view without freezing.",
+        "Use natural bridge phrases instead of long silences.",
+        "Follow basic GD etiquette without overthinking it.",
+      ];
+      const MINDSET = [
+        "A GD is a discussion, not a debate to win.",
+        "You don't need to speak first — you need to speak well.",
+        "Silence for 2 seconds is fine. Panic is not.",
+        "One clear point beats three confused ones.",
+        "Disagreeing politely is a skill, not rudeness.",
+        "Listening is 50% of a good GD.",
+        "Bridge phrases buy you thinking time.",
+        "Today is harder than yesterday — on purpose.",
+      ];
+      const GD_RULES = [
+        "Don't interrupt — wait for a natural pause before you speak.",
+        "Start with a bridge phrase, not silence, when it's your turn.",
+        "Keep your first point under 15 seconds; add more only if there's time.",
+        "Disagree with reasons, never with volume.",
+        "If you freeze, breathe and restate the topic in your own words — it buys you time.",
+      ];
+      const SCHEDULE = [
+        ["10 min", "English-Only Warm-Up"],
+        ["15 min", "PREP Practice"],
+        ["15 min", "Speed Translation — Level 2"],
+        ["15 min", "GD Simulator"],
+        ["15 min", "Listening + One-Line Summary"],
+        ["10 min", "Bridge Phrases"],
+        ["10 min", "Impromptu Speaking"],
+        ["10 min", "Body Language Check"],
+        ["10 min", "Mock GD Topic Bank"],
+        ["10 min", "Video Comprehension"],
+      ];
+      const HOMEWORK = [
+        "Watch one 2-minute discussion or debate clip and note down 3 bridge phrases used.",
+        "Prepare PREP points for 2 topics not covered today.",
+        "Re-record one of today's exercises before bed — compare with your first take.",
+        "Write down any English word you didn't know today and learn its meaning.",
+      ];
+      const RATINGS = [
+        "Confidence",
+        "PREP Structure",
+        "Listening",
+        "Bridging / Turn-taking",
+        "Fluency",
+        "Body Language",
+        "GD Readiness",
+      ];
 
-/* ================= STATE & DATA ================= */
-let CURRENT_STUDENT = null;
-let PROFILE = null;
+      /* Common GD topics reused across several exercises */
+      const GD_TOPICS = [
+        "Should mobile phones be allowed in classrooms?",
+        "Is online learning better than classroom learning?",
+        "Should students focus only on academics?",
+        "Is social media doing more harm than good?",
+        "Should engineering students learn coding before college?",
+        "Is work-from-home better than working from office?",
+      ];
+      const BRIDGE_PHRASES = [
+        "That's an interesting point...",
+        "I'd like to add that...",
+        "I see your point, but...",
+        "Building on what you said...",
+        "Let me put it this way...",
+        "To add one more thing...",
+      ];
 
-const OBJECTIVES = ["Speak continuously for 2–3 minutes without freezing.","Organize thoughts in a logical order.","Listen actively and identify important points.","Express ideas using simple English.","Build confidence while speaking."];
-const MINDSET = ["Don't chase perfect English.","Chase clear communication.","Fluency comes before grammar.","Never translate word by word.","Think about the idea first.","Speak using simple English.","Mistakes are part of learning.","Confidence grows through practice."];
-const SCHEDULE = [["15 min","Voice Recording"],["15 min","Listening Practice"],["10 min","Keyword Hunt"],["15 min","Picture Speaking"],["15 min","Speed Thinking"],["10 min","Agree or Disagree"],["10 min","Mirror Conversation"]];
-const HOMEWORK = ["Speak in Tamil for 3 minutes.","Speak in English for 3 minutes.","Listen to both recordings.","Write down 10 words you couldn't express in English.","Learn those words.","Record the English version again."];
-const RATINGS = ["Confidence","Listening","Thinking","Speaking","Fluency","Voice Clarity","Eye Contact","Overall Performance"];
+      /* Tamil -> English translation drill, Level 2 (GD-opinion sentences) */
+      const TRANSLATE_ITEMS = [
+        {
+          ta: "நான் இந்த கருத்துடன் உடன்படுகிறேன்.",
+          en: "I agree with this point.",
+        },
+        {
+          ta: "எனக்கு இதில் வேறு கருத்து உள்ளது.",
+          en: "I have a different opinion on this.",
+        },
+        {
+          ta: "இது ஒரு நல்ல யோசனை, ஆனால் சில பிரச்சனைகள் உள்ளன.",
+          en: "It's a good idea, but there are some problems.",
+        },
+        {
+          ta: "என் கருத்துப்படி, கல்வி வேலைவாய்ப்பை விட முக்கியமானது.",
+          en: "In my opinion, education is more important than a job.",
+        },
+        {
+          ta: "இதை இன்னும் கொஞ்சம் விளக்க முடியுமா?",
+          en: "Could you explain that a little more?",
+        },
+        {
+          ta: "நான் உங்கள் கருத்துடன் ஓரளவு உடன்படுகிறேன்.",
+          en: "I partly agree with your point.",
+        },
+        {
+          ta: "இது நடைமுறையில் சாத்தியமில்லை என்று நினைக்கிறேன்.",
+          en: "I don't think this is practical.",
+        },
+        {
+          ta: "இந்த தலைப்பில் இரண்டு பக்கமும் சரியானதுதான்.",
+          en: "Both sides make sense on this topic.",
+        },
+      ];
 
-/* Story for the interactive comprehension block */
-const STORY = {
-  title:"Meena's Bus Ride",
-  paras:[
-    "Meena woke up late on Monday morning. She had only ten minutes to catch her college bus.",
-    "She ran to the bus stop without having breakfast. The bus was already there, about to leave.",
-    "The driver saw her running and waited two extra minutes. Meena thanked him and sat near her friend Arun.",
-    "On the way, Arun shared his lunch box with her since she had no breakfast. Meena felt grateful and promised to wake up earlier from the next day."
-  ],
-  mcqs:[
-    {q:"Why did Meena run to the bus stop?", options:["She was late","She wanted exercise","She missed her friend"], correct:0},
-    {q:"Who waited for Meena?", options:["Her teacher","The bus driver","Her mother"], correct:1},
-    {q:"What did Arun do for Meena?", options:["Lent her money","Shared his lunch","Gave her a book"], correct:1},
-    {q:"What did Meena decide at the end?", options:["To stop going to college","To wake up earlier","To change her bus route"], correct:1}
-  ]
-};
+      /* ================= EXERCISES ================= */
+      const EXERCISES = [
+        {
+          id: "ex1",
+          num: 1,
+          title: "English-Only Voice Check",
+          type: "record",
+          theme: "speak",
+          duration: 150,
+          instr: `Same idea as your Day 1 baseline — but today, speak <b>entirely in English</b>, no Tamil at all. Pick a topic below and speak continuously for about 2.5 minutes.`,
+          pills: [
+            "My Favorite Subject",
+            "A Festival I Enjoy",
+            "My Daily Routine",
+            "A Skill I Want to Learn",
+            "My Favorite Movie",
+          ],
+          reflect: [
+            "Did I switch to Tamil at any point?",
+            "Did I pause less than yesterday?",
+            "Did I use any new words today?",
+          ],
+          scoreLabel: "Score yourself out of 10",
+          samples: [
+            {
+              label: "My Daily Routine",
+              text: "I wake up at six in the morning and get ready for college. After breakfast, I leave home by eight. My classes usually finish by four in the evening. At night, I revise my subjects and sometimes watch a movie before sleeping.",
+            },
+            {
+              label: "A Skill I Want to Learn",
+              text: "I want to learn public speaking because I feel nervous in front of a group. I think it will help me in interviews and in my career. I am practicing a little every day to build this skill.",
+            },
+            {
+              label: "My Favorite Subject",
+              text: "My favorite subject is Data Structures because it teaches me how to solve problems efficiently. I enjoy working on small coding exercises related to it. It has also helped me understand how real applications are built.",
+            },
+          ],
+        },
 
-/* Tamil -> English translation drill */
-const TRANSLATE_ITEMS = [
-  {ta:"என் பெயர் ரவி.", en:"My name is Ravi."},
-  {ta:"நான் கல்லூரியில் படிக்கிறேன்.", en:"I am studying in college."},
-  {ta:"இது என் நண்பன்.", en:"This is my friend."},
-  {ta:"நாங்கள் இன்று கடைக்குச் சென்றோம்.", en:"We went to the shop today."},
-  {ta:"அவள் மிகவும் புத்திசாலி.", en:"She is very intelligent."},
-  {ta:"நாளை எனக்கு தேர்வு உள்ளது.", en:"I have an exam tomorrow."},
-  {ta:"இந்த புத்தகம் மிகவும் சுவாரஸ்யமானது.", en:"This book is very interesting."},
-  {ta:"நான் தினமும் காலையில் நடைப்பயிற்சி செய்வேன்.", en:"I walk every morning."}
-];
+        {
+          id: "ex2",
+          num: 2,
+          title: "PREP — Building a Structured Opinion",
+          type: "prep",
+          theme: "think",
+          aiFeedback: true,
+          instr: `GD speakers rarely think in full paragraphs — they think in <b>Point → Reason → Example → Point</b>. Pick one topic below, then fill each box in your own words. This is exactly how you'll structure your speaking.`,
+          pills: GD_TOPICS.slice(0, 4),
+          samples: [
+            {
+              label: "Topic: Should mobile phones be allowed in classrooms?",
+              text: "Point: I don't think phones should be allowed during class. Reason: They distract students from listening to the teacher. Example: In my own class, students checking phones often miss important points and have to ask again. Point (again): So I feel phones should stay away during class hours.",
+            },
+            {
+              label:
+                "Topic: Is online learning better than classroom learning?",
+              text: "Point: I feel classroom learning is still better for beginners. Reason: It is easier to ask doubts immediately and stay focused. Example: During online classes, I noticed many students got distracted by their phones nearby. Point (again): So for now, I would prefer classroom learning, with online as a support.",
+            },
+          ],
+        },
 
-/* Picture speaking scenes — original simple SVG illustrations */
-const SCENES = [
-  {id:'park', label:'Morning Park', bg:'#1a2740',
-   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
-    <rect width="400" height="220" fill="#16233d"/>
-    <circle cx="340" cy="45" r="26" fill="#f2b84b"/>
-    <rect y="170" width="400" height="50" fill="#2b4a34"/>
-    <circle cx="70" cy="150" r="34" fill="#356b45"/><rect x="63" y="150" width="14" height="35" fill="#5c4326"/>
-    <circle cx="140" cy="140" r="40" fill="#3d7a4f"/><rect x="132" y="140" width="16" height="42" fill="#5c4326"/>
-    <circle cx="60" cy="190" r="10" fill="#e8c39e"/><rect x="52" y="198" width="16" height="20" fill="#5eead4"/>
-    <circle cx="110" cy="195" r="8" fill="#e8c39e"/><rect x="103" y="202" width="14" height="16" fill="#f0806f"/>
-    <ellipse cx="250" cy="205" rx="18" ry="8" fill="#274a36"/>
-    <circle cx="250" cy="185" r="9" fill="#e8c39e"/><rect x="242" y="192" width="16" height="16" fill="#a78bfa"/>
-   </svg>`,
-   qs:["What do you see in this picture?","What is happening here?","What time of day do you think it is, and why?","What might happen next?"]},
-  {id:'market', label:'Market Day', bg:'#241a2e',
-   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
-    <rect width="400" height="220" fill="#211a30"/>
-    <rect y="150" width="400" height="70" fill="#3a2f4d"/>
-    <rect x="30" y="90" width="90" height="60" fill="#4a3a5c"/><polygon points="25,90 125,90 100,65 50,65" fill="#f0806f"/>
-    <rect x="150" y="100" width="90" height="50" fill="#4a3a5c"/><polygon points="145,100 245,100 220,75 170,75" fill="#5eead4"/>
-    <rect x="270" y="95" width="90" height="55" fill="#4a3a5c"/><polygon points="265,95 365,95 340,70 290,70" fill="#f2b84b"/>
-    <circle cx="60" cy="120" r="6" fill="#e07a4f"/><circle cx="75" cy="122" r="6" fill="#e07a4f"/><circle cx="90" cy="120" r="6" fill="#e07a4f"/>
-    <circle cx="180" cy="128" r="6" fill="#7fbf6a"/><circle cx="195" cy="130" r="6" fill="#7fbf6a"/>
-    <circle cx="150" cy="200" r="9" fill="#e8c39e"/><rect x="142" y="207" width="16" height="13" fill="#f0806f"/>
-    <circle cx="220" cy="205" r="9" fill="#e8c39e"/><rect x="212" y="212" width="16" height="8" fill="#5eead4"/>
-   </svg>`,
-   qs:["What kind of place is this?","What are the people doing?","What sounds might you hear here?","Have you visited a place like this? Describe it."]},
-  {id:'kitchen', label:'Family Kitchen', bg:'#1f2418',
-   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
-    <rect width="400" height="220" fill="#232a1d"/>
-    <rect y="140" width="400" height="80" fill="#3a4530"/>
-    <rect x="40" y="90" width="130" height="50" fill="#4d5940" rx="6"/>
-    <circle cx="70" cy="115" r="10" fill="#f2b84b"/><circle cx="110" cy="115" r="10" fill="#f0806f"/>
-    <rect x="230" y="70" width="90" height="70" fill="#4d5940" rx="6"/>
-    <rect x="245" y="85" width="60" height="40" fill="#16233d" rx="4"/>
-    <circle cx="150" cy="195" r="9" fill="#e8c39e"/><rect x="142" y="202" width="16" height="16" fill="#a78bfa"/>
-    <circle cx="200" cy="198" r="8" fill="#e8c39e"/><rect x="193" y="205" width="14" height="14" fill="#5eead4"/>
-   </svg>`,
-   qs:["What is this family doing?","What do you think they are cooking?","Why is family time at home important?","Describe a similar moment from your own home."]},
-  {id:'busstop', label:'Rainy Bus Stop', bg:'#141c2b',
-   svg:`<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
-    <rect width="400" height="220" fill="#111a2b"/>
-    <line x1="20" y1="10" x2="5" y2="40" stroke="#5eead4" stroke-width="2" opacity=".5"/>
-    <line x1="80" y1="20" x2="65" y2="55" stroke="#5eead4" stroke-width="2" opacity=".5"/>
-    <line x1="150" y1="5" x2="135" y2="38" stroke="#5eead4" stroke-width="2" opacity=".5"/>
-    <line x1="300" y1="15" x2="285" y2="48" stroke="#5eead4" stroke-width="2" opacity=".5"/>
-    <line x1="350" y1="25" x2="335" y2="58" stroke="#5eead4" stroke-width="2" opacity=".5"/>
-    <rect y="170" width="400" height="50" fill="#1c2740"/>
-    <rect x="120" y="100" width="160" height="70" fill="#26314d"/><rect x="130" y="60" width="140" height="10" fill="#f2b84b"/>
-    <circle cx="160" cy="195" r="9" fill="#e8c39e"/><rect x="152" y="202" width="16" height="16" fill="#f0806f"/>
-    <circle cx="200" cy="195" r="9" fill="#e8c39e"/><rect x="192" y="202" width="16" height="16" fill="#a78bfa"/>
-    <circle cx="240" cy="196" r="8" fill="#e8c39e"/><rect x="233" y="203" width="14" height="14" fill="#5eead4"/>
-   </svg>`,
-   qs:["What is the weather like in this picture?","Who is waiting, and what for?","How do you think they feel right now?","What would you do while waiting here?"]}
-];
+        {
+          id: "ex3",
+          num: 3,
+          title: "Tamil → English Speed Translation — Level 2",
+          type: "translate",
+          theme: "think",
+          instr: `Harder than Day 1 — these are full opinion sentences you'll actually use in a GD. Think of the idea first, don't translate word by word. Type your answer, then reveal the suggested translation.`,
+          wrong: ["Tamil idea", "Word-by-word", "Speak"],
+          right: ["Idea first", "Simple English", "Speak"],
+          samples: [
+            {
+              label: "Word-by-word (wrong)",
+              text: '"எனக்கு இதில் வேறு கருத்து உள்ளது" → "To me in this different opinion is there." Broken, because it copies Tamil sentence order exactly.',
+            },
+            {
+              label: "Idea-first (correct)",
+              text: 'Same sentence, idea first → "I have a different opinion on this." Natural, GD-ready English.',
+            },
+            {
+              label: "One more example",
+              text: '"இது நடைமுறையில் சாத்தியமில்லை" → wrong: "This in practical not possible." Correct: "I don\'t think this is practical."',
+            },
+          ],
+        },
 
-const EXERCISES = [
-  {id:'ex1', num:1, title:'Voice Baseline', type:'record', theme:'speak', duration:180,
-    instr:`Measure your current communication level. Pick one topic below, then <b>speak only in Tamil</b>, record yourself, and speak continuously for 2–3 minutes. Don't stop. Don't restart. Don't worry about mistakes.`,
-    pills:['My Family','My College','My Hometown','My Best Friend','Why I Chose CSE'],
-    reflect:['Did I stop?','Did I hesitate?','Did I repeat words?','Was I confident?','Did I complete 2–3 minutes?'],
-    scoreLabel:'Score yourself out of 10'},
+        {
+          id: "ex4",
+          num: 4,
+          title: "GD Simulator — Respond & Build",
+          type: "record",
+          theme: "speak",
+          duration: 90,
+          prep: 20,
+          instr: `Read the topic and the opposing opinion below. Prepare for 20 seconds, then record a 90-second response that: <ul><li>briefly acknowledges the other view with a bridge phrase</li><li>gives your own point with a reason</li><li>closes with a short restated point</li></ul>`,
+          pills: BRIDGE_PHRASES.slice(0, 3),
+          samples: [
+            {
+              label: "Response example 1",
+              text: "That's an interesting point, but I see it a little differently. I think phones can actually help learning if used properly, for example, to check something the teacher explains. So I wouldn't ban them completely — just limit their use during lectures.",
+            },
+            {
+              label: "Response example 2",
+              text: "I understand your point about distraction, and it's true for many students. But I feel the real issue is discipline, not the phone itself. In my school, teachers who set clear rules had far fewer problems. So I'd focus on rules rather than a full ban.",
+            },
+            {
+              label: "Response example 3",
+              text: "I agree that phones can be distracting. Building on that, I think a middle path works best — allow phones only during breaks. That way students stay focused in class but still have access when they genuinely need it.",
+            },
+          ],
+        },
 
-  {id:'ex2', num:2, title:'Story Structure', type:'story', theme:'think',
-    instr:`Read this short beginner-level story once. Then answer the questions below, and finally retell it out loud using <b>Beginning → Reason → Example → Opinion → Conclusion</b>.`},
+        {
+          id: "ex5",
+          num: 5,
+          title: "Active Listening + One-Line Summary",
+          type: "listening",
+          theme: "listen",
+          notepad: true,
+          aiFeedback: true,
+          instr: `Use a 30–60 second beginner-level audio from one of these free platforms, then write your answers to the reflect questions below as a single note, ending with a one-sentence summary of the whole clip.`,
+          links: [
+            ["BBC Learning English", "https://www.bbc.co.uk/learningenglish"],
+            ["VOA Learning English", "https://learningenglish.voanews.com"],
+            ["ELLLO", "https://elllo.org"],
+          ],
+          reflect: [
+            "What was the topic?",
+            "What was the speaker's main opinion?",
+            "Summarize the whole clip in ONE sentence.",
+            "Name one word you didn't know and its meaning.",
+          ],
+          samples: [
+            {
+              label: "Example notes",
+              text: 'Topic: Remote work. Speaker\'s opinion: Remote work improves work-life balance but reduces team bonding. New word: "productivity" — how efficiently work gets done. One-line summary: Remote work has real benefits for balance, but companies need to work harder to keep teams connected.',
+            },
+            {
+              label: "Another example",
+              text: 'Topic: Plastic pollution. Speaker\'s opinion: Everyday habits matter more than big policies. New word: "sustainable" — able to continue without harming the environment. One-line summary: Small daily choices, not just government rules, are key to reducing plastic pollution.',
+            },
+          ],
+        },
 
-  {id:'ex3', num:3, title:'Tamil → English Thinking', type:'translate', theme:'think',
-    instr:`First, see the difference between translating word-by-word and thinking directly in simple English. Then try translating these 8 Tamil sentences into English yourself — type your answer, then reveal the suggested translation to check.`,
-    wrong:['Tamil','Translate every word','Speak'], right:['Idea','Simple English','Speak']},
+        {
+          id: "ex6",
+          num: 6,
+          title: "Filler & Bridge Phrases",
+          type: "notes",
+          theme: "speak",
+          notepad: true,
+          aiFeedback: true,
+          instr: `These phrases buy you thinking time and make you sound natural instead of stuck. Using at least 2 of the phrases above, write 3 short sentences you could actually say in a real GD — one to agree, one to disagree, one to add a point.`,
+          pills: BRIDGE_PHRASES,
+          samples: [
+            {
+              label: "Agree",
+              text: "That's an interesting point — I'd like to add that this also saves a lot of time for working professionals.",
+            },
+            {
+              label: "Disagree",
+              text: "I see your point, but I think the bigger issue here is accessibility, not cost.",
+            },
+            {
+              label: "Add a point",
+              text: "Building on what you said, I think schools should also train teachers on this, not just students.",
+            },
+          ],
+        },
 
-  {id:'ex4', num:4, title:'Short Sentence Practice', type:'notes', theme:'speak',
-    instr:`Speak using short sentences instead of one long complicated sentence. Example: "I am from Pudukkottai. I completed my schooling there. Now I am studying Computer Science." Write 3 short sentences about yourself below.`},
+        {
+          id: "ex7",
+          num: 7,
+          title: "Impromptu Speaking — GD Topics",
+          type: "record",
+          theme: "speak",
+          duration: 90,
+          prep: 15,
+          instr: `A topic is given cold — no long preparation. You get 15 seconds to think, then speak for 90 seconds giving your honest opinion, structured loosely as Point → Reason → Example.`,
+          pills: GD_TOPICS,
+          samples: [
+            {
+              label: "Topic: Is social media doing more harm than good?",
+              text: "I think social media does more good than harm if used carefully. It helps people stay connected and learn new things quickly. For example, I learned a lot of coding tips from tech pages on Instagram. Of course, too much use can be harmful, so balance matters.",
+            },
+            {
+              label:
+                "Topic: Should engineering students learn coding before college?",
+              text: "I feel it really helps to know some coding basics before college. It removes the initial fear of programming. For example, students who already knew basic Python found their first-year subjects much easier. So I'd recommend starting early, even if it's just the basics.",
+            },
+            {
+              label:
+                "Topic: Is work-from-home better than working from office?",
+              text: "I think it depends on the type of work. Work-from-home gives flexibility and saves travel time. But for teamwork and learning from seniors, an office is better, especially for freshers. So a mix of both would probably work best.",
+            },
+          ],
+        },
 
-  {id:'ex5', num:5, title:'Active Listening Challenge', type:'listening', theme:'listen',
-    instr:`Use a 30–60 second beginner-level audio from one of these free platforms, then answer the questions below.`,
-    links:[['BBC Learning English','https://www.bbc.co.uk/learningenglish'],['VOA Learning English','https://learningenglish.voanews.com'],['ELLLO','https://elllo.org']],
-    reflect:['What was the topic?','Who was speaking?','What was the main idea?','Mention three important words.','Explain it in Tamil.','Explain it in simple English.']},
+        {
+          id: "ex8",
+          num: 8,
+          title: "Body Language & Tone Self-Check",
+          type: "notes",
+          theme: "think",
+          notepad: true,
+          scoreLabel: "Rate your body language today",
+          instr: `GDs are judged by how you look and sound, not just what you say. Watch back one of today's recordings and reflect using the checklist below, then write a short note on what you noticed.`,
+          reflect: [
+            "Did I look at the camera/mirror while speaking?",
+            "Did I sit up straight?",
+            "Did I speak at a steady pace, not rushed?",
+            'Did I avoid saying "umm" too often?',
+            "Did I pause naturally instead of freezing?",
+          ],
+          samples: [
+            {
+              label: "Example note",
+              text: 'I noticed I look down a lot when thinking, which makes me seem unsure. My pace was okay but I said "umm" quite often in the first 30 seconds. I\'ll try pausing silently instead of filling every gap with "umm" tomorrow.',
+            },
+            {
+              label: "Another example",
+              text: "I sat up straight through the whole recording, which felt good. But I spoke a little too fast when I got nervous. I want to slow down deliberately in my next attempt.",
+            },
+          ],
+        },
 
-  {id:'ex6', num:6, title:'Keyword Hunt', type:'notes', theme:'listen',
-    instr:`Play another short audio. Write five keywords, three important details, any names, and any places you heard. This develops active listening.`},
+        {
+          id: "ex9",
+          num: 9,
+          title: "Mock GD Topic Bank — Opening Lines",
+          type: "notes",
+          theme: "think",
+          notepad: true,
+          aiFeedback: true,
+          instr: `Pick any 3 topics from the list below. Write ONE strong opening line (your first "Point") for each — the exact line you'd say in the first 10 seconds of a real GD.`,
+          pills: GD_TOPICS,
+          samples: [
+            {
+              label: "Topic: Should students focus only on academics?",
+              text: "I don't think academics alone is enough — I believe extracurriculars build skills that exams simply can't measure.",
+            },
+            {
+              label:
+                "Topic: Is online learning better than classroom learning?",
+              text: "In my opinion, online learning works well for revision, but classroom learning is still better for building the basics.",
+            },
+            {
+              label:
+                "Topic: Should engineering students learn coding before college?",
+              text: "I feel that learning coding basics before college gives students a real head start and reduces first-year stress.",
+            },
+          ],
+        },
 
-  {id:'ex7', num:7, title:'One Minute Retelling', type:'record', theme:'speak', duration:60,
-    instr:`Re-read the story from Exercise 2, then close it and retell it — first in Tamil, then in simple English. Focus on the idea, not memorizing sentences.`},
+        /* VIDEO_SETUP: To add a real clip, replace youtubeId with the ID from the video's
+     YouTube URL (the part after "v=", e.g. youtube.com/watch?v=ABC123xyz -> 'ABC123xyz').
+     Write 2-3 questions AFTER watching the clip yourself so the answers are accurate.
+     Good sources for 2-3 min beginner clips: BBC Learning English, VOA Learning English,
+     "Learn English with Bob the Canadian" (short videos playlist), ELLLO. Duplicate a
+     block inside the videos array below to add more than one clip to this exercise. */
+        {
+          id: "ex10",
+          num: 10,
+          title: "Video Comprehension — Watch & Answer",
+          type: "video",
+          theme: "listen",
+          instr: `Watch the clip fully, once, without pausing. Then answer the questions from memory — only tap "Show answer" after you've genuinely tried. This trains you to catch the main idea in real time, the way you'll need to in a live GD.`,
+          videos: [
+            {
+              title: "Add your first clip here",
+              meta: "2–3 min, beginner-level English, on a GD-relevant topic (social media, education, work-from-home, etc.)",
+              youtubeId: "",
+              questions: [
+                {
+                  q: "What was the main topic of the clip?",
+                  a: "Write the answer after watching, in your own words.",
+                },
+                {
+                  q: "What was one opinion or reason the speaker gave?",
+                  a: "Write the answer after watching, in your own words.",
+                },
+                {
+                  q: "Name one new word you heard and what it means.",
+                  a: "Write the answer after watching, in your own words.",
+                },
+              ],
+            },
+          ],
+        },
+      ];
 
-  {id:'ex8', num:8, title:'Picture Speaking', type:'picture', theme:'speak', duration:60, prep:60,
-    instr:`Choose a scene below, observe it for one minute, then record yourself speaking for one minute using the guiding questions.`},
+      const THEME_COLOR = {
+        speak: "var(--gold)",
+        listen: "var(--teal)",
+        think: "var(--violet)",
+      };
 
-  {id:'ex9', num:9, title:'Agree or Disagree', type:'choice', theme:'think',
-    instr:`Choose Agree or Disagree for each statement and give at least two reasons.`,
-    statements:['AI will replace many jobs.','Online classes are better than classroom learning.','Mobile phones should be banned in classrooms.']},
+      /* ================= FIRESTORE HELPERS (namespaced under day2) ================= */
+      async function saveProfile() {
+        if (!CURRENT_STUDENT || !FIREBASE_READY) return;
+        try {
+          await db
+            .collection("students")
+            .doc(CURRENT_STUDENT)
+            .set({ name: CURRENT_STUDENT, day2: PROFILE }, { merge: true });
+        } catch (e) {
+          console.error("save failed", e);
+          showBanner(
+            "⚠ Could not save your progress — check your connection.",
+            "warn",
+          );
+        }
+      }
+      async function loadProfile(name) {
+        if (FIREBASE_READY) {
+          try {
+            const doc = await db.collection("students").doc(name).get();
+            if (doc.exists && doc.data().day2) return doc.data().day2;
+          } catch (e) {
+            console.error("load failed", e);
+          }
+        }
+        return {
+          name,
+          startedAt: new Date().toISOString(),
+          checklist: {},
+          notes: {},
+          ratings: {},
+          choices: {},
+          audio: {},
+        };
+      }
 
-  {id:'ex10', num:10, title:'Speed Thinking', type:'record', theme:'speak', duration:60, prep:10,
-    instr:`A random word is shown. You get 10 seconds to think, then speak continuously for 1 minute — no preparation.`,
-    pills:['Rain','Laptop','Village','Teacher','Hospital']},
-
-  {id:'ex11', num:11, title:'Mirror Conversation', type:'record', theme:'speak', duration:120,
-    instr:`Stand in front of a mirror and answer naturally — no memorized answers.`,
-    reflect:['Tell me about yourself.','Why did you choose CSE?','What are your strengths?']},
-
-  {id:'ex12', num:12, title:'News in 60 Seconds', type:'record', theme:'speak', duration:60,
-    instr:`Read or listen to one short news article, then explain: What happened? Why is it important? What is your opinion?`}
-];
-
-const THEME_COLOR = {speak:'var(--gold)', listen:'var(--teal)', think:'var(--violet)'};
-
-/* ================= FIRESTORE HELPERS ================= */
-async function saveProfile(){
-  if(!CURRENT_STUDENT || !FIREBASE_READY) return;
-  try{ await db.collection('students').doc(CURRENT_STUDENT).set(PROFILE); }
-  catch(e){ console.error('save failed', e); showBanner('⚠ Could not save your progress — check your connection.', 'warn'); }
-}
-async function loadProfile(name){
-  if(FIREBASE_READY){
-    try{
-      const doc = await db.collection('students').doc(name).get();
-      if(doc.exists) return doc.data();
-    }catch(e){ console.error('load failed', e); }
-  }
-  return {name, startedAt:new Date().toISOString(), checklist:{}, notes:{}, ratings:{}, choices:{}, audio:{}};
-}
-
-/* ================= SESSION / NAME GATE ================= */
-function checkExistingSession(){
-  const last = localStorage.getItem('day1_current_student');
-  if(last){
-    document.getElementById('continueChip').innerHTML = `
+      /* ================= SESSION / NAME GATE ================= */
+      function checkExistingSession() {
+        const last = localStorage.getItem("day1_current_student");
+        if (last) {
+          document.getElementById("continueChip").innerHTML = `
       <div class="continue-chip"><span>Continue as <b>${last}</b>?</span>
-      <button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="continueSession('${last.replace(/'/g,"\\'")}')">Continue</button></div>`;
-  }
-}
-async function continueSession(name){
-  CURRENT_STUDENT = name;
-  PROFILE = await loadProfile(name);
-  document.getElementById('nameGate').style.display = 'none';
-  renderAll();
-}
-async function startSession(){
-  const val = document.getElementById('nameInput').value.trim();
-  if(!val){ document.getElementById('nameInput').focus(); return; }
-  CURRENT_STUDENT = val;
-  localStorage.setItem('day1_current_student', val);
-  PROFILE = await loadProfile(val);
-  document.getElementById('nameGate').style.display = 'none';
-  await saveProfile();
-  renderAll();
-}
-document.getElementById('nameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') startSession(); });
-document.getElementById('switchBtn').addEventListener('click', ()=>{
-  document.getElementById('nameGate').style.display = 'flex';
-  checkExistingSession();
-});
-checkExistingSession();
+      <button class="btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="continueSession('${last.replace(/'/g, "\\'")}')">Continue</button></div>`;
+        }
+      }
+      async function continueSession(name) {
+        CURRENT_STUDENT = name;
+        PROFILE = await loadProfile(name);
+        document.getElementById("nameGate").style.display = "none";
+        renderAll();
+      }
+      async function startSession() {
+        const val = document.getElementById("nameInput").value.trim();
+        if (!val) {
+          document.getElementById("nameInput").focus();
+          return;
+        }
+        CURRENT_STUDENT = val;
+        localStorage.setItem("day1_current_student", val);
+        PROFILE = await loadProfile(val);
+        document.getElementById("nameGate").style.display = "none";
+        await saveProfile();
+        renderAll();
+      }
+      document.getElementById("nameInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") startSession();
+      });
+      document.getElementById("switchBtn").addEventListener("click", () => {
+        document.getElementById("nameGate").style.display = "flex";
+        checkExistingSession();
+      });
+      checkExistingSession();
 
-/* ================= RENDER STATIC LISTS ================= */
-function renderStaticContent(){
-  document.getElementById('objList').innerHTML = OBJECTIVES.map((o,i)=>`<div class="mindset-card"><span class="num">0${i+1}</span><p>${o}</p></div>`).join('');
-  document.getElementById('mindsetGrid').innerHTML = MINDSET.map((m,i)=>`<div class="mindset-card"><span class="num">0${i+1}</span><p>${m}</p></div>`).join('');
-  document.getElementById('scheduleList').innerHTML = SCHEDULE.map(s=>`<div class="sched-row"><span class="sched-time mono">${s[0]}</span><span>${s[1]}</span></div>`).join('');
-  document.getElementById('hwList').innerHTML = HOMEWORK.map(h=>`<li>${h}</li>`).join('');
-  document.getElementById('ratingBox').innerHTML = RATINGS.map(r=>`
+      /* ================= RENDER STATIC LISTS ================= */
+      function renderStaticContent() {
+        document.getElementById("objList").innerHTML = OBJECTIVES.map(
+          (o, i) =>
+            `<div class="mindset-card"><span class="num">0${i + 1}</span><p>${o}</p></div>`,
+        ).join("");
+        document.getElementById("mindsetGrid").innerHTML = MINDSET.map(
+          (m, i) =>
+            `<div class="mindset-card"><span class="num">0${i + 1}</span><p>${m}</p></div>`,
+        ).join("");
+        document.getElementById("rulesGrid").innerHTML = GD_RULES.map(
+          (r, i) =>
+            `<div class="card rule-card"><span class="num">${i + 1}</span><p>${r}</p></div>`,
+        ).join("");
+        document.getElementById("scheduleList").innerHTML = SCHEDULE.map(
+          (s) =>
+            `<div class="sched-row"><span class="sched-time mono">${s[0]}</span><span>${s[1]}</span></div>`,
+        ).join("");
+        document.getElementById("hwList").innerHTML = HOMEWORK.map(
+          (h) => `<li>${h}</li>`,
+        ).join("");
+        document.getElementById("exCountTitle").textContent =
+          EXERCISES.length + " Exercises";
+        document.getElementById("ratingBox").innerHTML = RATINGS.map(
+          (r) => `
     <div class="rate-row"><span class="rate-label">${r}</span>
       <input type="range" min="1" max="10" value="5" data-rating="${r}" oninput="onRating(this)">
-      <span class="rate-val mono" id="rateval-${r.replace(/\s/g,'')}">5</span>
-    </div>`).join('');
-  const wave = document.getElementById('heroWave');
-  wave.innerHTML='';
-  for(let i=0;i<28;i++){
-    const s = document.createElement('span');
-    s.style.animationDelay = (Math.random()*1.2)+'s';
-    s.style.height = (20+Math.random()*40)+'%';
-    wave.appendChild(s);
-  }
-}
-function onRating(el){
-  const key = el.dataset.rating;
-  document.getElementById('rateval-'+key.replace(/\s/g,'')).textContent = el.value;
-  PROFILE.ratings[key] = parseInt(el.value);
-  saveProfile(); updateBadges(); updateProgress();
-}
+      <span class="rate-val mono" id="rateval-${r.replace(/[\s/]/g, "")}">5</span>
+    </div>`,
+        ).join("");
+        const wave = document.getElementById("heroWave");
+        wave.innerHTML = "";
+        for (let i = 0; i < 28; i++) {
+          const s = document.createElement("span");
+          s.style.animationDelay = Math.random() * 1.2 + "s";
+          s.style.height = 20 + Math.random() * 40 + "%";
+          wave.appendChild(s);
+        }
+      }
+      function onRating(el) {
+        const key = el.dataset.rating;
+        document.getElementById(
+          "rateval-" + key.replace(/[\s/]/g, ""),
+        ).textContent = el.value;
+        PROFILE.ratings[key] = parseInt(el.value);
+        saveProfile();
+        updateBadges();
+        updateProgress();
+      }
 
-/* ================= EXERCISE RENDERING ================= */
-function renderExercises(){
-  const wrap = document.getElementById('exerciseList');
-  wrap.innerHTML = EXERCISES.map(ex => exerciseCardHTML(ex)).join('');
-  EXERCISES.forEach(ex=>{
-    const card = document.getElementById('card-'+ex.id);
-    if(PROFILE.checklist[ex.id]){ card.classList.add('done'); const b=document.getElementById('completebtn-'+ex.id); if(b){b.classList.add('is-done'); b.textContent='✓ Completed';} }
-    const notesEl = document.getElementById('notes-'+ex.id);
-    if(notesEl && PROFILE.notes[ex.id]) notesEl.value = PROFILE.notes[ex.id];
-    const scoreEl = document.getElementById('score-'+ex.id);
-    if(scoreEl && PROFILE.notes[ex.id+'_score']) scoreEl.value = PROFILE.notes[ex.id+'_score'];
-    if(ex.type==='choice' && PROFILE.choices[ex.id]){
-      Object.keys(PROFILE.choices[ex.id]).forEach(idx=>{
-        const val = PROFILE.choices[ex.id][idx];
-        const btn = document.querySelector(`#card-${ex.id} [data-stmt="${idx}"][data-choice="${val}"]`);
-        if(btn) btn.classList.add('sel');
-        const reason = document.getElementById(`reason-${ex.id}-${idx}`);
-        if(reason && PROFILE.notes[ex.id+'_reason'+idx]) reason.value = PROFILE.notes[ex.id+'_reason'+idx];
-      });
-    }
-    if((ex.type==='record'||ex.type==='picture') && PROFILE.audio[ex.id]) showSavedAudio(ex.id, PROFILE.audio[ex.id]);
-  });
-}
+      /* ================= EXERCISE RENDERING ================= */
+      function renderExercises() {
+        const wrap = document.getElementById("exerciseList");
+        wrap.innerHTML = EXERCISES.map((ex) => exerciseCardHTML(ex)).join("");
+        EXERCISES.forEach((ex) => {
+          const card = document.getElementById("card-" + ex.id);
+          if (PROFILE.checklist[ex.id]) {
+            card.classList.add("done");
+            const b = document.getElementById("completebtn-" + ex.id);
+            if (b) {
+              b.classList.add("is-done");
+              b.textContent = "✓ Completed";
+            }
+          }
+          const notesEl = document.getElementById("notes-" + ex.id);
+          if (notesEl && PROFILE.notes[ex.id])
+            notesEl.value = PROFILE.notes[ex.id];
+          const scoreEl = document.getElementById("score-" + ex.id);
+          if (scoreEl && PROFILE.notes[ex.id + "_score"])
+            scoreEl.value = PROFILE.notes[ex.id + "_score"];
+          if (ex.type === "prep") {
+            ["point", "reason", "example", "point2"].forEach((f) => {
+              const el = document.getElementById(`prep-${ex.id}-${f}`);
+              if (el && PROFILE.notes[ex.id + "_" + f])
+                el.value = PROFILE.notes[ex.id + "_" + f];
+            });
+          }
+          if (ex.type === "record" && PROFILE.audio[ex.id])
+            showSavedAudio(ex.id, PROFILE.audio[ex.id]);
+        });
+      }
 
-function recordWidgetHTML(id, prep, dur){
-  return `<div class="timer-box">
-      <span class="timer-display mono" id="tmr-${id}">${fmtTime(prep?prep:dur)}</span>
-      <span class="timer-label" id="tmrlabel-${id}">${prep?'Prep time':'Speaking time'}</span>
-      <button class="timer-btn" id="tmrbtn-${id}" onclick="toggleTimer('${id}', ${prep||0}, ${dur})">Start</button>
+      function recordWidgetHTML(id, prep, dur) {
+        return `<div class="timer-box">
+      <span class="timer-display mono" id="tmr-${id}">${fmtTime(prep ? prep : dur)}</span>
+      <span class="timer-label" id="tmrlabel-${id}">${prep ? "Prep time" : "Speaking time"}</span>
+      <button class="timer-btn" id="tmrbtn-${id}" onclick="toggleTimer('${id}', ${prep || 0}, ${dur})">Start</button>
     </div>
     <div class="rec-box">
       <div class="rec-controls">
@@ -701,347 +2358,559 @@ function recordWidgetHTML(id, prep, dur){
       <div class="save-note" id="savenote-${id}">✓ Saved — your mentor can play this back.</div>
       <div class="rec-note">Recording uses your microphone (requires HTTPS) and saves to your profile.</div>
     </div>`;
-}
+      }
 
-function exerciseCardHTML(ex){
-  const color = THEME_COLOR[ex.theme] || 'var(--gold)';
-  let inner = `<p class="ex-instr">${ex.instr}</p>`;
+      function aiFeedbackWidgetHTML(id, getterExpr) {
+        return `<div class="ai-fb-row"><button class="ai-fb-btn" id="aifeedbackbtn-${id}" onclick="getAIFeedback('${id}', ${getterExpr})">🤖 Get AI Feedback</button></div>
+    <div class="ai-fb-box" id="aifeedbackbox-${id}" style="display:none;"></div>`;
+      }
 
-  if(ex.pills) inner += `<div class="pill-row">${ex.pills.map(p=>`<span class="pill">${p}</span>`).join('')}</div>`;
+      function exerciseCardHTML(ex) {
+        const color = THEME_COLOR[ex.theme] || "var(--gold)";
+        let inner = `<p class="ex-instr">${ex.instr}</p>`;
 
-  if(ex.type==='story'){
-    inner += `<div class="story-box">${STORY.paras.map(p=>`<p>${p}</p>`).join('')}</div>`;
-    inner += `<div id="mcqwrap-${ex.id}">` + STORY.mcqs.map((m,mi)=>`
-      <div class="mcq">
-        <div class="qtext">${mi+1}. ${m.q}</div>
-        ${m.options.map((o,oi)=>`<button class="mcq-opt" id="mcq-${ex.id}-${mi}-${oi}" onclick="answerMCQ('${ex.id}',${mi},${oi},${m.correct})">${o}</button>`).join('')}
-      </div>`).join('') + `</div>`;
-  }
-
-  if(ex.type==='translate'){
-    inner += `<div class="grid grid-2" style="margin-bottom:18px;">
-      <div class="card" style="padding:16px;border-color:rgba(240,128,111,.3)"><div class="eyebrow" style="color:var(--coral)">✕ Wrong</div>
-        ${ex.wrong.map(w=>`<div style="padding:6px 0;font-size:14px;">${w}</div>`).join('<div style="color:var(--text-faint)">↓</div>')}</div>
-      <div class="card" style="padding:16px;border-color:rgba(94,234,212,.3)"><div class="eyebrow" style="color:var(--teal)">✓ Correct</div>
-        ${ex.right.map(w=>`<div style="padding:6px 0;font-size:14px;">${w}</div>`).join('<div style="color:var(--text-faint)">↓</div>')}</div>
+        if (ex.samples && ex.samples.length) {
+          inner += `<button type="button" class="example-toggle-btn" id="exbtn-${ex.id}" onclick="toggleExamples('${ex.id}')">💡 See ${ex.samples.length} example answers <span class="chev">▾</span></button>
+    <div class="example-box" id="exbox-${ex.id}">
+      ${ex.samples.map((s) => `<div class="example-item"><div class="ex-label">${s.label}</div><div class="ex-text">${s.text}</div></div>`).join("")}
     </div>`;
-    inner += TRANSLATE_ITEMS.map((t,ti)=>`
+        }
+
+        if (ex.pills)
+          inner += `<div class="pill-row">${ex.pills.map((p) => `<span class="pill">${p}</span>`).join("")}</div>`;
+
+        if (ex.type === "translate") {
+          inner += `<div class="grid grid-2" style="margin-bottom:18px;">
+      <div class="card" style="padding:16px;border-color:rgba(240,128,111,.3)"><div class="eyebrow" style="color:var(--coral)">✕ Wrong</div>
+        ${ex.wrong.map((w) => `<div style="padding:6px 0;font-size:14px;">${w}</div>`).join('<div style="color:var(--text-faint)">↓</div>')}</div>
+      <div class="card" style="padding:16px;border-color:rgba(94,234,212,.3)"><div class="eyebrow" style="color:var(--teal)">✓ Correct</div>
+        ${ex.right.map((w) => `<div style="padding:6px 0;font-size:14px;">${w}</div>`).join('<div style="color:var(--text-faint)">↓</div>')}</div>
+    </div>`;
+          inner += TRANSLATE_ITEMS.map(
+            (t, ti) => `
       <div class="tr-row">
         <div class="tr-tamil">${t.ta}</div>
         <input class="tr-input" placeholder="Type your English translation..." id="trinput-${ex.id}-${ti}" onblur="saveTranslation('${ex.id}',${ti},this.value)">
         <div class="tr-actions"><button class="tr-reveal-btn" onclick="revealTranslation('${ex.id}',${ti})">Show suggested translation</button></div>
         <div class="tr-answer" id="transwer-${ex.id}-${ti}">${t.en}</div>
-      </div>`).join('');
-  }
+      </div>`,
+          ).join("");
+        }
 
-  if(ex.type==='listening' && ex.links){
-    inner += `<div class="pill-row">${ex.links.map(l=>`<a href="${l[1]}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;">🔗 ${l[0]}</a>`).join('')}</div>`;
-  }
+        if (ex.type === "listening" && ex.links) {
+          inner += `<div class="pill-row">${ex.links.map((l) => `<a href="${l[1]}" target="_blank" rel="noopener" class="pill" style="text-decoration:none;">🔗 ${l[0]}</a>`).join("")}</div>`;
+        }
 
-  if(ex.type==='record'){
-    inner += recordWidgetHTML(ex.id, ex.prep||0, ex.duration||60);
-  }
+        if (ex.type === "video" && ex.videos) {
+          inner += ex.videos
+            .map(
+              (v, vi) => `
+      <div class="video-block">
+        <div class="video-title">${v.title}</div>
+        ${v.meta ? `<div class="video-meta">${v.meta}</div>` : ""}
+        ${
+          v.youtubeId
+            ? `<div class="video-embed-wrap"><iframe src="https://www.youtube.com/embed/${v.youtubeId}" title="${v.title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
+            : `<div class="video-embed-wrap" style="display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;"><span style="font-size:13px;color:var(--text-faint);">🎬 Paste a real YouTube video ID here — see the VIDEO_SETUP note in the code.</span></div>`
+        }
+        ${(v.questions || [])
+          .map(
+            (qa, qi) => `
+          <div class="qa-item">
+            <div class="qa-q">${qi + 1}. ${qa.q}</div>
+            <button type="button" class="qa-reveal-btn" onclick="revealQA('${ex.id}',${vi},${qi})">Show answer</button>
+            <div class="qa-answer" id="qa-${ex.id}-${vi}-${qi}">${qa.a}</div>
+          </div>`,
+          )
+          .join("")}
+      </div>`,
+            )
+            .join("");
+        }
 
-  if(ex.type==='picture'){
-    inner += `<div class="scene-tabs">${SCENES.map((s,si)=>`<button class="scene-tab ${si===0?'active':''}" id="scenetab-${ex.id}-${si}" onclick="pickScene('${ex.id}',${si})">${s.label}</button>`).join('')}</div>
-    <div class="scene-box" id="scenebox-${ex.id}">${SCENES[0].svg}</div>
-    <div class="scene-questions" id="scenequestions-${ex.id}">${SCENES[0].qs.map(q=>`<div class="q">• ${q}</div>`).join('')}</div>
-    ${recordWidgetHTML(ex.id, ex.prep||0, ex.duration||60)}`;
-  }
+        if (ex.type === "record") {
+          inner += recordWidgetHTML(ex.id, ex.prep || 0, ex.duration || 60);
+        }
 
-  if(ex.reflect){
-    inner += `<div class="card" style="padding:14px 16px;margin-bottom:16px;"><div class="eyebrow" style="margin-bottom:8px;">Reflect</div>
-      <ul style="padding-left:18px;font-size:13.5px;color:var(--text-dim);line-height:1.9;">${ex.reflect.map(r=>`<li>${r}</li>`).join('')}</ul></div>`;
-  }
+        if (ex.type === "prep") {
+          inner += `<div class="prep-grid">
+      <div class="prep-field"><label>Point</label><textarea id="prep-${ex.id}-point" placeholder="Your opinion, in one line..." onblur="savePrepField('${ex.id}','point',this.value)"></textarea></div>
+      <div class="prep-field"><label>Reason</label><textarea id="prep-${ex.id}-reason" placeholder="Why you think so..." onblur="savePrepField('${ex.id}','reason',this.value)"></textarea></div>
+      <div class="prep-field"><label>Example</label><textarea id="prep-${ex.id}-example" placeholder="A real example or situation..." onblur="savePrepField('${ex.id}','example',this.value)"></textarea></div>
+      <div class="prep-field"><label>Point, again</label><textarea id="prep-${ex.id}-point2" placeholder="Restate briefly to close..." onblur="savePrepField('${ex.id}','point2',this.value)"></textarea></div>
+    </div>`;
+          if (ex.aiFeedback)
+            inner += aiFeedbackWidgetHTML(
+              ex.id,
+              `()=>['point','reason','example','point2'].map(f=>document.getElementById('prep-${ex.id}-'+f).value).join(' ')`,
+            );
+        }
 
-  if(ex.type==='choice'){
-    inner += ex.statements.map((s,idx)=>`
-      <div class="statement-item"><div class="statement-text">${s}</div>
-        <div class="choice-row">
-          <button class="choice-btn agree" data-stmt="${idx}" data-choice="agree" onclick="selectChoice('${ex.id}',${idx},'agree',this)">Agree</button>
-          <button class="choice-btn disagree" data-stmt="${idx}" data-choice="disagree" onclick="selectChoice('${ex.id}',${idx},'disagree',this)">Disagree</button>
-        </div>
-        <textarea class="notepad" id="reason-${ex.id}-${idx}" placeholder="Your two reasons..." onblur="saveReason('${ex.id}',${idx},this.value)"></textarea>
-      </div>`).join('');
-  }
+        if (ex.reflect) {
+          inner += `<div class="card" style="padding:14px 16px;margin-bottom:16px;"><div class="eyebrow" style="margin-bottom:8px;">Reflect</div>
+      <ul style="padding-left:18px;font-size:13.5px;color:var(--text-dim);line-height:1.9;">${ex.reflect.map((r) => `<li>${r}</li>`).join("")}</ul></div>`;
+        }
 
-  if(ex.type==='notes'){
-    inner += `<textarea class="notepad" id="notes-${ex.id}" placeholder="Write here..." onblur="saveNotes('${ex.id}',this.value)"></textarea>`;
-  }
+        if (ex.notepad) {
+          inner += `<textarea class="notepad" id="notes-${ex.id}" placeholder="Write here..." onblur="saveNotes('${ex.id}',this.value)"></textarea>`;
+          if (ex.aiFeedback)
+            inner += aiFeedbackWidgetHTML(
+              ex.id,
+              `()=>document.getElementById('notes-${ex.id}').value`,
+            );
+        }
 
-  if(ex.scoreLabel){
-    inner += `<div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+        if (ex.scoreLabel) {
+          inner += `<div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
       <span style="font-size:13px;color:var(--text-dim);">${ex.scoreLabel}</span>
       <input type="number" min="0" max="10" id="score-${ex.id}" style="width:56px;background:var(--bg-elev);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 8px;font-family:'JetBrains Mono',monospace;" onblur="saveScore('${ex.id}',this.value)">
     </div>`;
-  }
+        }
 
-  inner += `<div class="ex-complete-row"><button class="complete-btn" id="completebtn-${ex.id}" onclick="toggleComplete('${ex.id}')">Mark Complete</button></div>`;
+        inner += `<div class="ex-complete-row"><button class="complete-btn" id="completebtn-${ex.id}" onclick="toggleComplete('${ex.id}')">Mark Complete</button></div>`;
 
-  return `<div class="ex-card" id="card-${ex.id}">
+        return `<div class="ex-card" id="card-${ex.id}">
     <div class="ex-head" onclick="toggleCard('${ex.id}')">
-      <div class="ex-num mono" style="color:${color}">${String(ex.num).padStart(2,'0')}</div>
-      <div class="ex-titles"><h3>${ex.title}</h3><div class="ex-type">${ex.type.toUpperCase()}${ex.duration?' · '+ex.duration+'s':''}</div></div>
+      <div class="ex-num mono" style="color:${color}">${String(ex.num).padStart(2, "0")}</div>
+      <div class="ex-titles"><h3>${ex.title}</h3><div class="ex-type">${ex.type.toUpperCase()}${ex.duration ? " · " + ex.duration + "s" : ""}</div></div>
       <div class="ex-check">✓</div><div class="ex-chevron">▾</div>
     </div>
     <div class="ex-body"><div class="ex-body-inner">${inner}</div></div>
   </div>`;
-}
-
-function fmtTime(s){ const m=Math.floor(s/60), sec=s%60; return `${m}:${String(sec).padStart(2,'0')}`; }
-function toggleCard(id){ document.getElementById('card-'+id).classList.toggle('open'); }
-function toggleComplete(id){
-  PROFILE.checklist[id] = !PROFILE.checklist[id];
-  document.getElementById('card-'+id).classList.toggle('done', PROFILE.checklist[id]);
-  document.getElementById('completebtn-'+id).classList.toggle('is-done', PROFILE.checklist[id]);
-  document.getElementById('completebtn-'+id).textContent = PROFILE.checklist[id] ? '✓ Completed' : 'Mark Complete';
-  saveProfile(); updateProgress(); updateBadges();
-}
-function saveNotes(id, val){ PROFILE.notes[id]=val; saveProfile(); }
-function saveScore(id, val){ PROFILE.notes[id+'_score']=val; saveProfile(); }
-function saveReason(id, idx, val){ PROFILE.notes[id+'_reason'+idx]=val; saveProfile(); }
-function saveTranslation(id, idx, val){ PROFILE.notes[id+'_tr'+idx]=val; saveProfile(); }
-function revealTranslation(id, idx){ document.getElementById(`transwer-${id}-${idx}`).style.display='block'; }
-function answerMCQ(id, qi, oi, correctIdx){
-  for(let i=0;i<5;i++){
-    const el = document.getElementById(`mcq-${id}-${qi}-${i}`);
-    if(!el) break;
-    el.classList.add('disabled');
-    if(i===correctIdx) el.classList.add('correct');
-  }
-  if(oi!==correctIdx) document.getElementById(`mcq-${id}-${qi}-${oi}`).classList.add('wrong');
-  PROFILE.notes[id+'_mcq'+qi] = (oi===correctIdx) ? 'correct' : 'wrong';
-  saveProfile();
-}
-function pickScene(id, si){
-  document.querySelectorAll(`[id^="scenetab-${id}-"]`).forEach(t=>t.classList.remove('active'));
-  document.getElementById(`scenetab-${id}-${si}`).classList.add('active');
-  document.getElementById(`scenebox-${id}`).innerHTML = SCENES[si].svg;
-  document.getElementById(`scenequestions-${id}`).innerHTML = SCENES[si].qs.map(q=>`<div class="q">• ${q}</div>`).join('');
-  PROFILE.notes[id+'_scene'] = SCENES[si].label;
-  saveProfile();
-}
-function selectChoice(id, idx, choice, btn){
-  if(!PROFILE.choices[id]) PROFILE.choices[id]={};
-  PROFILE.choices[id][idx]=choice;
-  document.querySelectorAll(`#card-${id} [data-stmt="${idx}"]`).forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel'); saveProfile();
-}
-
-/* ================= TIMERS ================= */
-const timerState = {};
-function toggleTimer(id, prep, dur){
-  if(timerState[id] && timerState[id].running){
-    clearInterval(timerState[id].interval); timerState[id].running=false;
-    document.getElementById('tmrbtn-'+id).textContent='Start'; document.getElementById('tmrbtn-'+id).classList.remove('active');
-    return;
-  }
-  let phase = prep>0 ? 'prep' : 'speak';
-  let remaining = prep>0 ? prep : dur;
-  document.getElementById('tmrlabel-'+id).textContent = phase==='prep' ? 'Prep time' : 'Speaking time';
-  document.getElementById('tmrbtn-'+id).textContent='Pause'; document.getElementById('tmrbtn-'+id).classList.add('active');
-  timerState[id] = {running:true};
-  timerState[id].interval = setInterval(()=>{
-    remaining--;
-    document.getElementById('tmr-'+id).textContent = fmtTime(Math.max(remaining,0));
-    if(remaining<=0){
-      if(phase==='prep'){ phase='speak'; remaining=dur; document.getElementById('tmrlabel-'+id).textContent='Speaking time'; }
-      else{
-        clearInterval(timerState[id].interval); timerState[id].running=false;
-        document.getElementById('tmrbtn-'+id).textContent='Start'; document.getElementById('tmrbtn-'+id).classList.remove('active');
-        document.getElementById('tmrlabel-'+id).textContent='Time up!';
       }
-    }
-  },1000);
-}
 
-/* ================= AUDIO RECORDING ================= */
-const recState = {};
-async function toggleRecording(id){
-  const btn = document.getElementById('recbtn-'+id);
-  const status = document.getElementById('recstatus-'+id);
-  if(recState[id] && recState[id].recording){ recState[id].mediaRecorder.stop(); return; }
+      function fmtTime(s) {
+        const m = Math.floor(s / 60),
+          sec = s % 60;
+        return `${m}:${String(sec).padStart(2, "0")}`;
+      }
+      function toggleCard(id) {
+        document.getElementById("card-" + id).classList.toggle("open");
+      }
+      function toggleExamples(id) {
+        document.getElementById("exbox-" + id).classList.toggle("open");
+        document.getElementById("exbtn-" + id).classList.toggle("open");
+      }
+      function toggleComplete(id) {
+        PROFILE.checklist[id] = !PROFILE.checklist[id];
+        document
+          .getElementById("card-" + id)
+          .classList.toggle("done", PROFILE.checklist[id]);
+        document
+          .getElementById("completebtn-" + id)
+          .classList.toggle("is-done", PROFILE.checklist[id]);
+        document.getElementById("completebtn-" + id).textContent = PROFILE
+          .checklist[id]
+          ? "✓ Completed"
+          : "Mark Complete";
+        saveProfile();
+        updateProgress();
+        updateBadges();
+      }
+      function saveNotes(id, val) {
+        PROFILE.notes[id] = val;
+        saveProfile();
+      }
+      function saveScore(id, val) {
+        PROFILE.notes[id + "_score"] = val;
+        saveProfile();
+      }
+      function savePrepField(id, field, val) {
+        PROFILE.notes[id + "_" + field] = val;
+        saveProfile();
+      }
+      function saveTranslation(id, idx, val) {
+        PROFILE.notes[id + "_tr" + idx] = val;
+        saveProfile();
+      }
+      function revealTranslation(id, idx) {
+        document.getElementById(`transwer-${id}-${idx}`).style.display =
+          "block";
+      }
+      function revealQA(id, vi, qi) {
+        document.getElementById(`qa-${id}-${vi}-${qi}`).style.display = "block";
+      }
 
-  if(!window.isSecureContext){ status.textContent = 'Blocked: page must be served over HTTPS.'; return; }
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ status.textContent = 'Microphone not supported in this browser.'; return; }
+      /* ================= AI FEEDBACK (Claude API) ================= */
+      async function getAIFeedback(id, getText) {
+        const btn = document.getElementById("aifeedbackbtn-" + id);
+        const box = document.getElementById("aifeedbackbox-" + id);
+        const text = (getText() || "").trim();
+        box.style.display = "block";
+        if (text.length < 3) {
+          box.innerHTML =
+            '<div class="ai-fb-empty">Write something first, then tap for feedback.</div>';
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = "Thinking…";
+        box.innerHTML = '<div class="ai-fb-loading">Getting feedback…</div>';
+        try {
+          const response = await fetch(
+            "https://api.anthropic.com/v1/messages",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                model: "claude-sonnet-4-6",
+                max_tokens: 400,
+                messages: [
+                  {
+                    role: "user",
+                    content: `You are a warm, encouraging spoken-English and group-discussion coach for Vinothaki, a final-year CSE engineering student in India preparing for her first fresher interview, who is completely new to structured GD practice. Give short, specific feedback (under 120 words) on the text below: mention 1-2 things done well, then 1-2 concrete improvements (grammar, structure, or GD etiquette). Be kind, not harsh, and use simple language since she is a beginner. Text:\n\n"${text.replace(/"/g, "'")}"`,
+                  },
+                ],
+              }),
+            },
+          );
+          const data = await response.json();
+          const fb =
+            (data.content || [])
+              .map((c) => c.text || "")
+              .join("\n")
+              .trim() || "No feedback returned — please try again.";
+          box.innerHTML = `<div class="ai-fb-label">🤖 AI Coach Feedback</div><div class="ai-fb-text">${fb.replace(/\n/g, "<br>")}</div>`;
+        } catch (e) {
+          console.error(e);
+          box.innerHTML =
+            '<div class="ai-fb-empty">Could not get feedback right now — check your connection and try again.</div>';
+        }
+        btn.disabled = false;
+        btn.textContent = "🤖 Get AI Feedback";
+      }
 
-  try{
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
-    const mr = new MediaRecorder(stream, {mimeType, audioBitsPerSecond:24000});
-    const chunks = [];
-    mr.ondataavailable = e=>{ if(e.data.size>0) chunks.push(e.data); };
-    mr.onstop = async ()=>{
-      stream.getTracks().forEach(t=>t.stop());
-      btn.classList.remove('recording');
-      const blob = new Blob(chunks, {type:'audio/webm'});
-      const localUrl = URL.createObjectURL(blob);
-      document.getElementById('recplayer-'+id).innerHTML = `<audio controls src="${localUrl}"></audio>`;
-      status.textContent = 'Recorded';
-      recState[id].recording=false;
+      /* ================= TIMERS ================= */
+      const timerState = {};
+      function toggleTimer(id, prep, dur) {
+        if (timerState[id] && timerState[id].running) {
+          clearInterval(timerState[id].interval);
+          timerState[id].running = false;
+          document.getElementById("tmrbtn-" + id).textContent = "Start";
+          document.getElementById("tmrbtn-" + id).classList.remove("active");
+          return;
+        }
+        let phase = prep > 0 ? "prep" : "speak";
+        let remaining = prep > 0 ? prep : dur;
+        document.getElementById("tmrlabel-" + id).textContent =
+          phase === "prep" ? "Prep time" : "Speaking time";
+        document.getElementById("tmrbtn-" + id).textContent = "Pause";
+        document.getElementById("tmrbtn-" + id).classList.add("active");
+        timerState[id] = { running: true };
+        timerState[id].interval = setInterval(() => {
+          remaining--;
+          document.getElementById("tmr-" + id).textContent = fmtTime(
+            Math.max(remaining, 0),
+          );
+          if (remaining <= 0) {
+            if (phase === "prep") {
+              phase = "speak";
+              remaining = dur;
+              document.getElementById("tmrlabel-" + id).textContent =
+                "Speaking time";
+            } else {
+              clearInterval(timerState[id].interval);
+              timerState[id].running = false;
+              document.getElementById("tmrbtn-" + id).textContent = "Start";
+              document
+                .getElementById("tmrbtn-" + id)
+                .classList.remove("active");
+              document.getElementById("tmrlabel-" + id).textContent =
+                "Time up!";
+            }
+          }
+        }, 1000);
+      }
 
-      if(FIREBASE_READY && CURRENT_STUDENT){
-        document.getElementById('uploadnote-'+id).style.display='block';
-        try{
-          const path = `recordings/${CURRENT_STUDENT}/${id}_${Date.now()}.webm`;
-          const ref = storageRef.ref().child(path);
-          await ref.put(blob);
-          const url = await ref.getDownloadURL();
-          PROFILE.audio[id] = {url, savedAt:new Date().toISOString(), sizeKB:Math.round(blob.size/1024)};
-          await saveProfile();
-          document.getElementById('uploadnote-'+id).style.display='none';
-          document.getElementById('savenote-'+id).style.display='block';
-        }catch(e){
-          console.error('upload failed', e);
-          document.getElementById('uploadnote-'+id).textContent = 'Upload failed — recording only saved on this device.';
+      /* ================= AUDIO RECORDING ================= */
+      const recState = {};
+      async function toggleRecording(id) {
+        const btn = document.getElementById("recbtn-" + id);
+        const status = document.getElementById("recstatus-" + id);
+        if (recState[id] && recState[id].recording) {
+          recState[id].mediaRecorder.stop();
+          return;
+        }
+
+        if (!window.isSecureContext) {
+          status.textContent = "Blocked: page must be served over HTTPS.";
+          return;
+        }
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          status.textContent = "Microphone not supported in this browser.";
+          return;
+        }
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          const mimeType = MediaRecorder.isTypeSupported(
+            "audio/webm;codecs=opus",
+          )
+            ? "audio/webm;codecs=opus"
+            : "audio/webm";
+          const mr = new MediaRecorder(stream, {
+            mimeType,
+            audioBitsPerSecond: 24000,
+          });
+          const chunks = [];
+          mr.ondataavailable = (e) => {
+            if (e.data.size > 0) chunks.push(e.data);
+          };
+          mr.onstop = async () => {
+            stream.getTracks().forEach((t) => t.stop());
+            btn.classList.remove("recording");
+            const blob = new Blob(chunks, { type: "audio/webm" });
+            const localUrl = URL.createObjectURL(blob);
+            document.getElementById("recplayer-" + id).innerHTML =
+              `<audio controls src="${localUrl}"></audio>`;
+            status.textContent = "Recorded";
+            recState[id].recording = false;
+
+            if (FIREBASE_READY && CURRENT_STUDENT) {
+              document.getElementById("uploadnote-" + id).style.display =
+                "block";
+              try {
+                const path = `recordings/${CURRENT_STUDENT}/day2_${id}_${Date.now()}.webm`;
+                const ref = storageRef.ref().child(path);
+                await ref.put(blob);
+                const url = await ref.getDownloadURL();
+                PROFILE.audio[id] = {
+                  url,
+                  savedAt: new Date().toISOString(),
+                  sizeKB: Math.round(blob.size / 1024),
+                };
+                await saveProfile();
+                document.getElementById("uploadnote-" + id).style.display =
+                  "none";
+                document.getElementById("savenote-" + id).style.display =
+                  "block";
+              } catch (e) {
+                console.error("upload failed", e);
+                document.getElementById("uploadnote-" + id).textContent =
+                  "Upload failed — recording only saved on this device.";
+              }
+            }
+          };
+          mr.start();
+          recState[id] = { mediaRecorder: mr, recording: true };
+          btn.classList.add("recording");
+          status.textContent = "Recording... tap to stop";
+        } catch (err) {
+          status.textContent = "Microphone permission denied.";
         }
       }
-    };
-    mr.start();
-    recState[id] = {mediaRecorder:mr, recording:true};
-    btn.classList.add('recording');
-    status.textContent = 'Recording... tap to stop';
-  }catch(err){
-    status.textContent = 'Microphone permission denied.';
-  }
-}
-function showSavedAudio(id, audioObj){
-  document.getElementById('recplayer-'+id).innerHTML = `<audio controls src="${audioObj.url}"></audio>`;
-  document.getElementById('savenote-'+id).style.display='block';
-}
+      function showSavedAudio(id, audioObj) {
+        document.getElementById("recplayer-" + id).innerHTML =
+          `<audio controls src="${audioObj.url}"></audio>`;
+        document.getElementById("savenote-" + id).style.display = "block";
+      }
 
-/* ================= PROGRESS + BADGES ================= */
-function updateProgress(){
-  const total = EXERCISES.length + 1;
-  let done = EXERCISES.filter(ex=>PROFILE.checklist[ex.id]).length;
-  const ratedCount = Object.keys(PROFILE.ratings||{}).length;
-  if(ratedCount >= RATINGS.length) done += 1;
-  const pct = Math.round((done/total)*100);
-  document.getElementById('progFill').style.width = pct+'%';
-  document.getElementById('progPct').textContent = pct+'%';
-}
-function updateBadges(){
-  const done = EXERCISES.filter(ex=>PROFILE.checklist[ex.id]).length;
-  const badges = [
-    {label:'First Recording', earned: Object.keys(PROFILE.audio||{}).length>0, icon:'🎙️'},
-    {label:'Halfway There', earned: done>=6, icon:'⚡'},
-    {label:'All Exercises Done', earned: done>=EXERCISES.length, icon:'🏆'},
-    {label:'Self-Evaluated', earned: Object.keys(PROFILE.ratings||{}).length>=RATINGS.length, icon:'📊'},
-  ];
-  document.getElementById('badgeStrip').innerHTML = badges.map(b=>`<div class="badge ${b.earned?'earned':''}">${b.icon} ${b.label}</div>`).join('');
-}
+      /* ================= PROGRESS + BADGES ================= */
+      function updateProgress() {
+        const total = EXERCISES.length + 1;
+        let done = EXERCISES.filter((ex) => PROFILE.checklist[ex.id]).length;
+        const ratedCount = Object.keys(PROFILE.ratings || {}).length;
+        if (ratedCount >= RATINGS.length) done += 1;
+        const pct = Math.round((done / total) * 100);
+        document.getElementById("progFill").style.width = pct + "%";
+        document.getElementById("progPct").textContent = pct + "%";
+      }
+      function updateBadges() {
+        const done = EXERCISES.filter((ex) => PROFILE.checklist[ex.id]).length;
+        const badges = [
+          {
+            label: "First Recording",
+            earned: Object.keys(PROFILE.audio || {}).length > 0,
+            icon: "🎙️",
+          },
+          {
+            label: "Halfway There",
+            earned: done >= Math.ceil(EXERCISES.length / 2),
+            icon: "⚡",
+          },
+          {
+            label: "All Exercises Done",
+            earned: done >= EXERCISES.length,
+            icon: "🏆",
+          },
+          {
+            label: "Self-Evaluated",
+            earned: Object.keys(PROFILE.ratings || {}).length >= RATINGS.length,
+            icon: "📊",
+          },
+        ];
+        document.getElementById("badgeStrip").innerHTML = badges
+          .map(
+            (b) =>
+              `<div class="badge ${b.earned ? "earned" : ""}">${b.icon} ${b.label}</div>`,
+          )
+          .join("");
+      }
 
-/* ================= ADMIN DASHBOARD ================= */
-async function openAdmin(){
-  document.getElementById('mainContent').classList.add('hide');
-  document.getElementById('adminPanel').classList.add('show');
-  document.getElementById('adminToggle').textContent = 'Close Admin';
-  await loadAdminData();
-}
-function closeAdmin(){
-  document.getElementById('mainContent').classList.remove('hide');
-  document.getElementById('adminPanel').classList.remove('show');
-  document.getElementById('adminToggle').textContent = 'Admin';
-}
-document.getElementById('adminToggle').addEventListener('click', ()=>{
-  const isOpen = document.getElementById('adminPanel').classList.contains('show');
-  isOpen ? closeAdmin() : openAdmin();
-});
+      /* ================= ADMIN DASHBOARD ================= */
+      async function openAdmin() {
+        document.getElementById("mainContent").classList.add("hide");
+        document.getElementById("adminPanel").classList.add("show");
+        document.getElementById("adminToggle").textContent = "Close Admin";
+        await loadAdminData();
+      }
+      function closeAdmin() {
+        document.getElementById("mainContent").classList.remove("hide");
+        document.getElementById("adminPanel").classList.remove("show");
+        document.getElementById("adminToggle").textContent = "Admin";
+      }
+      document.getElementById("adminToggle").addEventListener("click", () => {
+        const isOpen = document
+          .getElementById("adminPanel")
+          .classList.contains("show");
+        isOpen ? closeAdmin() : openAdmin();
+      });
 
-async function loadAdminData(){
-  const wrap = document.getElementById('studentListWrap');
-  if(!FIREBASE_READY){
-    wrap.innerHTML = `<div class="empty-state"><div class="icon">⚠</div>Firebase is not configured — the admin dashboard needs it to read student data.</div>`;
-    document.getElementById('statStrip').innerHTML='';
-    return;
-  }
-  wrap.innerHTML = `<div class="empty-state"><div class="icon">⏳</div>Loading students...</div>`;
-  let profiles = [];
-  try{
-    const snap = await db.collection('students').get();
-    snap.forEach(doc=>profiles.push(doc.data()));
-  }catch(e){ console.error(e); }
+      async function loadAdminData() {
+        const wrap = document.getElementById("studentListWrap");
+        if (!FIREBASE_READY) {
+          wrap.innerHTML = `<div class="empty-state"><div class="icon">⚠</div>Firebase is not configured — the admin dashboard needs it to read student data.</div>`;
+          document.getElementById("statStrip").innerHTML = "";
+          return;
+        }
+        wrap.innerHTML = `<div class="empty-state"><div class="icon">⏳</div>Loading students...</div>`;
+        let profiles = [];
+        try {
+          const snap = await db.collection("students").get();
+          snap.forEach((doc) => {
+            const d = doc.data();
+            if (d.day2) profiles.push(d.day2);
+          });
+        } catch (e) {
+          console.error(e);
+        }
 
-  if(profiles.length===0){
-    wrap.innerHTML = `<div class="empty-state"><div class="icon">🗂️</div>No students have started Day 1 yet.</div>`;
-    document.getElementById('statStrip').innerHTML=''; return;
-  }
-  const totalEx = EXERCISES.length;
-  const avgCompletion = Math.round(profiles.reduce((a,p)=>a + Object.values(p.checklist||{}).filter(Boolean).length,0) / (profiles.length*totalEx) * 100) || 0;
-  const fullyDone = profiles.filter(p=>Object.values(p.checklist||{}).filter(Boolean).length>=totalEx).length;
-  const recordings = profiles.reduce((a,p)=>a+Object.keys(p.audio||{}).length,0);
+        if (profiles.length === 0) {
+          wrap.innerHTML = `<div class="empty-state"><div class="icon">🗂️</div>No students have started Day 2 yet.</div>`;
+          document.getElementById("statStrip").innerHTML = "";
+          return;
+        }
+        const totalEx = EXERCISES.length;
+        const avgCompletion =
+          Math.round(
+            (profiles.reduce(
+              (a, p) =>
+                a + Object.values(p.checklist || {}).filter(Boolean).length,
+              0,
+            ) /
+              (profiles.length * totalEx)) *
+              100,
+          ) || 0;
+        const fullyDone = profiles.filter(
+          (p) =>
+            Object.values(p.checklist || {}).filter(Boolean).length >= totalEx,
+        ).length;
+        const recordings = profiles.reduce(
+          (a, p) => a + Object.keys(p.audio || {}).length,
+          0,
+        );
 
-  document.getElementById('statStrip').innerHTML = `
+        document.getElementById("statStrip").innerHTML = `
     <div class="stat-box"><div class="num mono">${profiles.length}</div><div class="lbl">Students</div></div>
     <div class="stat-box"><div class="num mono">${avgCompletion}%</div><div class="lbl">Avg Completion</div></div>
-    <div class="stat-box"><div class="num mono">${fullyDone}</div><div class="lbl">Finished Day 1</div></div>
+    <div class="stat-box"><div class="num mono">${fullyDone}</div><div class="lbl">Finished Day 2</div></div>
     <div class="stat-box"><div class="num mono">${recordings}</div><div class="lbl">Recordings</div></div>`;
 
-  wrap.innerHTML = profiles.map((p,i)=>{
-    const doneCount = Object.values(p.checklist||{}).filter(Boolean).length;
-    const pct = Math.round((doneCount/totalEx)*100);
-    const initial = (p.name||'?').trim()[0]?.toUpperCase()||'?';
-    return `<div class="student-row" onclick="openDetail(${i})">
+        wrap.innerHTML = profiles
+          .map((p, i) => {
+            const doneCount = Object.values(p.checklist || {}).filter(
+              Boolean,
+            ).length;
+            const pct = Math.round((doneCount / totalEx) * 100);
+            const initial = (p.name || "?").trim()[0]?.toUpperCase() || "?";
+            return `<div class="student-row" onclick="openDetail(${i})">
       <div class="student-avatar">${initial}</div>
       <div class="student-info"><div class="name">${p.name}</div><div class="meta">${doneCount}/${totalEx} exercises · started ${new Date(p.startedAt).toLocaleDateString()}</div></div>
       <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
-      <button class="del-btn" onclick="event.stopPropagation();deleteStudent('${(p.name||'').replace(/'/g,"\\'")}')">✕</button>
+      <button class="del-btn" onclick="event.stopPropagation();deleteStudent('${(p.name || "").replace(/'/g, "\\'")}')">✕</button>
     </div>`;
-  }).join('');
-  window._adminProfiles = profiles;
-}
-async function deleteStudent(name){
-  if(!confirm(`Remove ${name}'s record? This cannot be undone.`)) return;
-  try{ await db.collection('students').doc(name).delete(); }catch(e){}
-  await loadAdminData();
-}
-function openDetail(idx){
-  const p = window._adminProfiles[idx];
-  const doneCount = Object.values(p.checklist||{}).filter(Boolean).length;
-  let html = `<div class="detail-overlay" onclick="if(event.target===this) closeDetail()"><div class="detail-box">
+          })
+          .join("");
+        window._adminProfiles = profiles;
+      }
+      async function deleteStudent(name) {
+        if (!confirm(`Remove ${name}'s Day 2 record? This cannot be undone.`))
+          return;
+        try {
+          await db
+            .collection("students")
+            .doc(name)
+            .update({ day2: firebase.firestore.FieldValue.delete() });
+        } catch (e) {}
+        await loadAdminData();
+      }
+      function openDetail(idx) {
+        const p = window._adminProfiles[idx];
+        const doneCount = Object.values(p.checklist || {}).filter(
+          Boolean,
+        ).length;
+        let html = `<div class="detail-overlay" onclick="if(event.target===this) closeDetail()"><div class="detail-box">
       <button class="close-x" onclick="closeDetail()">✕</button>
       <h3>${p.name}</h3>
       <p style="color:var(--text-faint);font-size:12.5px;margin-bottom:14px;">Started ${new Date(p.startedAt).toLocaleString()} · ${doneCount}/${EXERCISES.length} completed</p>`;
-  EXERCISES.forEach(ex=>{
-    const notes = p.notes ? p.notes[ex.id] : null;
-    const score = p.notes ? p.notes[ex.id+'_score'] : null;
-    const audio = p.audio ? p.audio[ex.id] : null;
-    const doneTag = p.checklist && p.checklist[ex.id] ? '✓' : '—';
-    const hasChoice = ex.type==='choice' && p.choices && p.choices[ex.id];
-    if(!notes && !score && !audio && !hasChoice){ html += `<div class="detail-item"><h4>${doneTag} ${ex.num}. ${ex.title}</h4></div>`; return; }
-    html += `<div class="detail-item"><h4>${doneTag} ${ex.num}. ${ex.title}</h4>`;
-    if(score) html += `<p>Self-score: <b>${score}/10</b></p>`;
-    if(notes) html += `<p>${notes}</p>`;
-    if(hasChoice){
-      Object.keys(p.choices[ex.id]).forEach(i=>{
-        const reason = p.notes ? p.notes[ex.id+'_reason'+i] : '';
-        html += `<p><b>${ex.statements[i]}</b> — ${p.choices[ex.id][i]}${reason?': '+reason:''}</p>`;
+        EXERCISES.forEach((ex) => {
+          const notes = p.notes ? p.notes[ex.id] : null;
+          const score = p.notes ? p.notes[ex.id + "_score"] : null;
+          const audio = p.audio ? p.audio[ex.id] : null;
+          const doneTag = p.checklist && p.checklist[ex.id] ? "✓" : "—";
+          let prepText = "";
+          if (ex.type === "prep" && p.notes) {
+            const parts = ["point", "reason", "example", "point2"]
+              .map((f) => p.notes[ex.id + "_" + f])
+              .filter(Boolean);
+            if (parts.length) prepText = parts.join(" · ");
+          }
+          if (!notes && !score && !audio && !prepText) {
+            html += `<div class="detail-item"><h4>${doneTag} ${ex.num}. ${ex.title}</h4></div>`;
+            return;
+          }
+          html += `<div class="detail-item"><h4>${doneTag} ${ex.num}. ${ex.title}</h4>`;
+          if (score) html += `<p>Self-score: <b>${score}/10</b></p>`;
+          if (notes) html += `<p>${notes}</p>`;
+          if (prepText) html += `<p>${prepText}</p>`;
+          if (audio)
+            html += `<audio controls src="${audio.url}" style="margin-top:6px;"></audio>`;
+          html += `</div>`;
+        });
+        if (p.ratings && Object.keys(p.ratings).length) {
+          html += `<div class="detail-item"><h4>Self-Evaluation</h4>`;
+          Object.keys(p.ratings).forEach((k) => {
+            html += `<span class="rate-chip">${k}: ${p.ratings[k]}/10</span>`;
+          });
+          html += `</div>`;
+        }
+        html += `</div></div>`;
+        document.getElementById("detailOverlayWrap").innerHTML = html;
+      }
+      function closeDetail() {
+        document.getElementById("detailOverlayWrap").innerHTML = "";
+      }
+
+      /* ================= THEME ================= */
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        const html = document.documentElement;
+        const isLight = html.getAttribute("data-theme") === "light";
+        html.setAttribute("data-theme", isLight ? "dark" : "light");
+        document.getElementById("themeToggle").textContent = isLight
+          ? "🌙"
+          : "☀️";
       });
-    }
-    if(audio) html += `<audio controls src="${audio.url}" style="margin-top:6px;"></audio>`;
-    html += `</div>`;
-  });
-  if(p.ratings && Object.keys(p.ratings).length){
-    html += `<div class="detail-item"><h4>Self-Evaluation</h4>`;
-    Object.keys(p.ratings).forEach(k=>{ html += `<span class="rate-chip">${k}: ${p.ratings[k]}/10</span>`; });
-    html += `</div>`;
-  }
-  html += `</div></div>`;
-  document.getElementById('detailOverlayWrap').innerHTML = html;
-}
-function closeDetail(){ document.getElementById('detailOverlayWrap').innerHTML=''; }
 
-/* ================= THEME ================= */
-document.getElementById('themeToggle').addEventListener('click', ()=>{
-  const html = document.documentElement;
-  const isLight = html.getAttribute('data-theme')==='light';
-  html.setAttribute('data-theme', isLight?'dark':'light');
-  document.getElementById('themeToggle').textContent = isLight ? '🌙' : '☀️';
-});
-
-/* ================= INIT ================= */
-function renderAll(){ renderStaticContent(); renderExercises(); updateProgress(); updateBadges(); }
-document.getElementById('nameInput').focus();
-</script>
-</body>
+      /* ================= INIT ================= */
+      function renderAll() {
+        renderStaticContent();
+        renderExercises();
+        updateProgress();
+        updateBadges();
+      }
+      document.getElementById("nameInput").focus();
+      document.getElementById("nameInput").select();
+    </script>
+  </body>
 </html>
